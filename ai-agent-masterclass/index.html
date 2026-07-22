@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="从 AI 小白到智能体大师：一门边学、边做、边验证的免费交互式课程。" />
+    <meta name="color-scheme" content="light dark" />
+    <title>AI 智能体大师课</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到正文</a>
+
+    <header class="topbar">
+      <a class="brand" href="#/home" aria-label="AI 智能体大师课首页">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>
+          <strong>AI 智能体大师课</strong>
+          <small>Agent Masterclass · 开放课程</small>
+        </span>
+      </a>
+
+      <nav class="topnav" aria-label="主导航">
+        <a href="#/home">首页</a>
+        <a href="#/roadmap">学习路线</a>
+        <a href="#/glossary">术语库</a>
+        <a href="#/updates">更新日志</a>
+      </nav>
+
+      <div class="top-actions">
+        <button id="search-trigger" class="icon-button search-button" type="button" aria-label="搜索课程">
+          <span aria-hidden="true">⌕</span><kbd>/</kbd>
+        </button>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="切换深色模式">◐</button>
+        <button id="mobile-menu-toggle" class="icon-button mobile-only" type="button" aria-label="打开课程目录">☰</button>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside id="sidebar" class="sidebar" aria-label="课程目录">
+        <div class="sidebar-progress">
+          <div class="eyebrow">你的学习进度</div>
+          <div class="progress-summary">
+            <strong id="sidebar-progress-label">0%</strong>
+            <span id="sidebar-progress-count">0 / 2 课</span>
+          </div>
+          <div class="progress-track" aria-hidden="true"><span id="sidebar-progress-bar"></span></div>
+        </div>
+        <nav id="course-nav" class="course-nav" aria-label="课程章节"></nav>
+        <div class="sidebar-footer">
+          <button id="export-progress" class="text-button" type="button">导出学习进度</button>
+          <label class="text-button file-button">导入进度<input id="import-progress" type="file" accept="application/json" /></label>
+        </div>
+      </aside>
+
+      <main id="main-content" class="main-content" tabindex="-1"></main>
+    </div>
+
+    <div id="search-dialog" class="dialog-backdrop" hidden>
+      <section class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="search-title">
+        <div class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input id="search-input" type="search" autocomplete="off" placeholder="搜索课程、概念或术语……" />
+          <button id="search-close" class="icon-button" type="button" aria-label="关闭搜索">×</button>
+        </div>
+        <h2 id="search-title" class="sr-only">课程搜索</h2>
+        <div id="search-results" class="search-results"></div>
+        <p class="search-hint"><kbd>↑</kbd><kbd>↓</kbd> 选择 · <kbd>Enter</kbd> 打开 · <kbd>Esc</kbd> 关闭</p>
+      </section>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="./course-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
