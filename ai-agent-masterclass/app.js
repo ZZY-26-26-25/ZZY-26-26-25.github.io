@@ -167,7 +167,7 @@
           <section>
             <div class="eyebrow">从零基础开始 · 免费开放 · 持续更新</div>
             <h1>不是“会聊几句”，<br />而是真正<em>会构建智能体</em></h1>
-            <p class="lead">用一个真实的“灵巧手情报智能体”贯穿全程。从 AI 与 LLM 基础，走到工具、检索、记忆、规划、多智能体、评测、安全和部署。</p>
+            <p class="lead">用一个真实的“旅行规划智能体”贯穿全程。从 AI 与 LLM 基础，走到工具、检索、记忆、规划、多智能体、评测、安全和部署。</p>
             <div class="hero-actions">
               <a class="button" href="#/lesson/${next.id}">${completedCount() ? "继续学习" : "从导学课开始"} <span aria-hidden="true">→</span></a>
               <a class="button secondary" href="#/roadmap">查看完整路线</a>
@@ -223,7 +223,7 @@
         <header class="lesson-header">
           <div class="eyebrow">Mastery Roadmap · v${data.meta.version}</div>
           <h1>一条完整、但不会让初学者迷路的路线</h1>
-          <p class="lesson-deck">核心课程共 51 课。每个模块都产出一个能运行的新版本，最终形成可部署、可评测、可持续运行的灵巧手情报智能体。</p>
+          <p class="lesson-deck">核心课程共 51 课。每个模块都产出一个能运行的新版本，最终形成可部署、可评测、可持续运行的旅行规划智能体。</p>
         </header>
 
         <section class="section-heading"><div><span class="eyebrow">学习阶段</span><h2>10 个模块，9 次升级</h2></div><p>推荐每次只学一课；课程顺序可以根据你的实际项目调整，但阶段验收不会省略。</p></section>
@@ -242,7 +242,7 @@
 
         <section class="section callout idea">
           <h3>阶段作品如何成长</h3>
-          <p><strong>Charter → 结构化 LLM 应用 → 工具智能体 → RAG 研究助手 → 可治理记忆 → 长任务系统 → 多智能体团队 → 安全可靠版本 → 部署版本。</strong></p>
+          <p><strong>Charter → 结构化旅行助手 → 工具型旅行智能体 → RAG 目的地研究助手 → 可治理旅行偏好记忆 → 长行程规划系统 → 多智能体旅行团队 → 安全可靠版本 → 部署版本。</strong></p>
           <p>毕业验收不是“代码能跑”，而是你能解释架构取舍、提供评测证据、抵抗常见攻击、定位失败、控制费用，并把方法教给另一个初学者。</p>
         </section>
       </article>`;
@@ -434,11 +434,11 @@
     const steps = [...document.querySelectorAll("[data-loop-step]")];
     const log = document.querySelector(".loop-log");
     const messages = [
-      "收到目标：寻找最近发布的灵巧手论文",
-      "检查状态：还没有候选论文，决定调用搜索",
-      "执行工具：search(query, date_range)",
-      "观察结果：得到 8 条记录，其中 3 条来自一手来源",
-      "验证：证据足够；若不足，就带着新状态进入下一轮"
+      "收到目标：制定一份可执行的周末旅行计划",
+      "检查状态：还缺天气、开放时间和交通耗时",
+      "执行工具：查询天气、官方信息和地图路线",
+      "观察结果：周六有雨，原户外路线和摄影机位受影响",
+      "验证与重规划：生成室内 Plan B，并标注关键来源"
     ];
     button.addEventListener("click", () => {
       clearInterval(loopTimer);
@@ -468,7 +468,7 @@
 
     const currentCharter = () => Object.fromEntries([...builder.querySelectorAll("[data-charter]")].map((field) => [field.dataset.charter, field.value.trim()]));
     const asText = (charter) => [
-      "name: 灵巧手情报智能体",
+      "name: 旅行规划智能体",
       `user: ${charter.user || "待填写"}`,
       `goal: ${charter.goal || "待填写"}`,
       `allowed_tools: ${charter.allowed_tools || "待填写"}`,
