@@ -2,7 +2,7 @@ window.CourseData = {
   meta: {
     title: "AI 智能体大师课",
     subtitle: "从 AI 小白到能独立设计、构建、评测和部署智能体",
-    version: "0.1.0",
+    version: "0.2.0",
     updated: "2026-07-22",
     coreLessons: 51,
     publishedLessons: 2,
@@ -30,12 +30,12 @@ window.CourseData = {
       number: "00",
       title: "导学：先建立你的智能体学习系统",
       shortTitle: "导学与学习契约",
-      deck: "先看终点、路线和规则，再动手定义贯穿全程的“灵巧手情报智能体”。",
+      deck: "先看终点、路线和规则，再动手定义贯穿全程的“旅行规划智能体”。",
       duration: "35 分钟",
       level: "零基础",
       status: "published",
       updated: "2026-07-22",
-      keywords: ["课程地图", "Agent Charter", "学习方法", "灵巧手情报智能体", "自主度", "权限"],
+      keywords: ["课程地图", "Agent Charter", "学习方法", "旅行规划智能体", "旅行规划", "天气", "交通", "摄影机位", "Plan B", "来源验证", "自主度", "权限"],
       content: `
         <section class="objectives">
           <h2>完成这一课，你会得到什么</h2>
@@ -57,7 +57,7 @@ window.CourseData = {
 
         <div class="callout idea">
           <h3>贯穿全课的主项目</h3>
-          <p><strong>具身智能 / 灵巧手情报智能体</strong>：它将从一个只会整理摘要的小程序，逐步成长为能检索论文和产品、核对来源、记住研究偏好、规划周期任务、协调多个专业智能体，并能安全发布结果的完整系统。</p>
+          <p><strong>旅行规划智能体</strong>：它将从一个只会罗列景点的小程序，逐步成长为能检索并交叉核验官方与公开信息、记住预算和旅行偏好、规划行前物资、交通与完整时间线、协调天气和摄影等专业智能体，并为恶劣天气、停运、闭园或身体不适生成可执行 Plan B 的完整系统。它会为关键决策附上来源，只推荐安全、合法且获准的玩法，并在购票、预订、付款或公开发表内容前请求审批。</p>
         </div>
 
         <h2 id="method">我们的学习方法：每个知识点走五遍</h2>
@@ -77,7 +77,7 @@ window.CourseData = {
             <tr><td>L0</td><td>只生成文本</td><td>改写、摘要、解释</td></tr>
             <tr><td>L1</td><td>建议使用什么工具，但不执行</td><td>高风险决策辅助</td></tr>
             <tr><td>L2</td><td>执行预先确定的固定流程</td><td>步骤稳定、规则清楚的任务</td></tr>
-            <tr><td>L3</td><td>在给定工具中自己选择下一步</td><td>路径难以事先穷举的研究任务</td></tr>
+            <tr><td>L3</td><td>在给定工具中自己选择下一步</td><td>路径难以事先穷举的综合旅行规划</td></tr>
             <tr><td>L4+</td><td>长任务重规划或跨智能体协作</td><td>复杂任务，但关键动作必须受监督</td></tr>
           </tbody>
         </table>
@@ -89,14 +89,14 @@ window.CourseData = {
         <h2 id="charter">动手：写下你的第一份 Agent Charter</h2>
         <p>智能体契约不是漂亮口号，而是系统设计的边界。先写一个不完美的版本，以后每个阶段再迭代。</p>
         <section id="charter-builder" class="interactive-panel">
-          <h3>灵巧手情报智能体 · v0 契约生成器</h3>
+          <h3>旅行规划智能体 · v0 契约生成器</h3>
           <div class="form-grid">
-            <label>它为谁服务？<textarea data-charter="user" rows="2" placeholder="例如：具身智能与灵巧手研究者"></textarea></label>
-            <label>最终要交付什么？<textarea data-charter="goal" rows="2" placeholder="例如：有来源、无重复的每日研究简报"></textarea></label>
-            <label>允许使用哪些工具？<textarea data-charter="allowed_tools" rows="2" placeholder="例如：公开网页搜索、GitHub 只读检索"></textarea></label>
-            <label>绝不能做什么？<textarea data-charter="forbidden_actions" rows="2" placeholder="例如：未经确认发布、购买或联系他人"></textarea></label>
-            <label>哪些动作必须审批？<textarea data-charter="approval_required" rows="2" placeholder="例如：向公开网站发布内容"></textarea></label>
-            <label>怎样算做得好？<textarea data-charter="success_metrics" rows="2" placeholder="例如：引用准确率、覆盖率、重复率、时效性"></textarea></label>
+            <label>它为谁服务？<textarea data-charter="user" rows="2" placeholder="例如：需要制定可执行旅行计划的游客"></textarea></label>
+            <label>最终要交付什么？<textarea data-charter="goal" rows="2" placeholder="例如：包含物资、交通、逐时路线、摄影机位、多套 Plan B 和来源的完整计划"></textarea></label>
+            <label>允许使用哪些工具？<textarea data-charter="allowed_tools" rows="2" placeholder="例如：官方信息、天气预警、12306、航旅纵横、高德、星空摄影工具；小红书/抖音仅作机位灵感"></textarea></label>
+            <label>绝不能做什么？<textarea data-charter="forbidden_actions" rows="2" placeholder="例如：推荐危险、违法、进入封闭区域或未经许可的玩法"></textarea></label>
+            <label>哪些动作必须审批？<textarea data-charter="approval_required" rows="2" placeholder="例如：购票、订房、付款、登录账号、联系第三方或公开发表内容"></textarea></label>
+            <label>怎样算做得好？<textarea data-charter="success_metrics" rows="2" placeholder="例如：行程可执行率、引用准确率、时间衔接、Plan B 覆盖、安全合规与复用/付费意愿"></textarea></label>
           </div>
           <div class="panel-actions"><button class="button small" type="button" data-action="save-charter">保存到本机</button><button class="button secondary small" type="button" data-action="copy-charter">复制契约</button></div>
           <p class="muted privacy-note">内容只保存在当前浏览器，不会上传到网站或 GitHub。</p>
@@ -134,7 +134,7 @@ window.CourseData = {
       level: "零基础",
       status: "published",
       updated: "2026-07-22",
-      keywords: ["AI", "机器学习", "深度学习", "LLM", "大语言模型", "AI Agent", "智能体循环", "Agent Loop", "工具调用"],
+      keywords: ["AI", "机器学习", "深度学习", "LLM", "大语言模型", "AI Agent", "智能体循环", "Agent Loop", "工具调用", "旅行规划", "天气", "交通", "Plan B"],
       content: `
         <section class="objectives">
           <h2>完成这一课，你应该能</h2>
@@ -182,8 +182,8 @@ LLM：计算下一个 Token 的概率，并连续生成
           <thead><tr><th>形态</th><th>下一步由谁决定</th><th>典型例子</th><th>主要优点</th></tr></thead>
           <tbody>
             <tr><td><strong>聊天 / 单次调用</strong></td><td>用户再次发消息</td><td>把一段文字改写得更清楚</td><td>简单、便宜、容易控制</td></tr>
-            <tr><td><strong>固定工作流</strong></td><td>程序提前写死</td><td>读取文件 → 摘要 → 套模板 → 保存</td><td>稳定、可预测、易测试</td></tr>
-            <tr><td><strong>智能体</strong></td><td>模型根据新观察动态选择</td><td>先搜索，再判断缺什么资料，继续检索或结束</td><td>能处理路径难以事先穷举的任务</td></tr>
+            <tr><td><strong>固定工作流</strong></td><td>程序提前写死</td><td>读取已确认行程 → 套模板 → 生成提醒 → 保存</td><td>稳定、可预测、易测试</td></tr>
+            <tr><td><strong>智能体</strong></td><td>模型根据新观察动态选择</td><td>先核验目的地，再判断缺少天气、交通、开放状态还是摄影条件</td><td>能处理路径难以事先穷举的任务</td></tr>
           </tbody>
         </table>
         <p>现实系统往往是混合体：外层用确定工作流控制高风险步骤，某些节点内部再让智能体自主选择。不要为了“听起来先进”而把所有流程都智能体化。</p>
@@ -192,15 +192,15 @@ LLM：计算下一个 Token 的概率，并连续生成
           <h3>互动：它更适合哪种形态？</h3>
           <p class="muted">先做判断，再看原因。目标不是给系统贴标签，而是选择最低且足够的复杂度。</p>
           <div class="scenario" data-correct="chat">
-            <div><strong>A. 把这段论文摘要改写成 150 字中文</strong><p>输入清楚，只需一次生成。</p></div>
+            <div><strong>A. 把已核验的景点资料改写成 150 字行程说明</strong><p>输入清楚，只需一次生成。</p></div>
             <div class="choice-buttons"><button class="choice-button" data-choice="chat">单次调用</button><button class="choice-button" data-choice="workflow">工作流</button><button class="choice-button" data-choice="agent">智能体</button></div>
           </div>
           <div class="scenario" data-correct="workflow">
-            <div><strong>B. 每天 8:30 读取固定数据表、生成同一格式报告并存档</strong><p>步骤固定，输入输出明确。</p></div>
+            <div><strong>B. 出发前每天 8:30，按固定步骤读取天气与已确认行程、生成提醒并存档</strong><p>步骤固定，输入输出明确。</p></div>
             <div class="choice-buttons"><button class="choice-button" data-choice="chat">单次调用</button><button class="choice-button" data-choice="workflow">工作流</button><button class="choice-button" data-choice="agent">智能体</button></div>
           </div>
           <div class="scenario" data-correct="agent">
-            <div><strong>C. 调研一个新型灵巧手，自己判断该查论文、专利还是演示视频</strong><p>信息缺口会随检索结果变化，路线无法完全预写。</p></div>
+            <div><strong>C. 为陌生目的地制定完整方案，自己判断该查官方公告、天气、交通、地图还是摄影条件</strong><p>信息缺口会随检索结果变化，路线无法完全预写；社交平台发现的机位还需要交叉核验。</p></div>
             <div class="choice-buttons"><button class="choice-button" data-choice="chat">单次调用</button><button class="choice-button" data-choice="workflow">工作流</button><button class="choice-button" data-choice="agent">智能体</button></div>
           </div>
         </section>
@@ -209,11 +209,11 @@ LLM：计算下一个 Token 的概率，并连续生成
         <p>最小智能体循环可以压缩成五步：读取目标和状态、决定下一步、执行动作、观察结果、检查是否结束。没有结束条件，它就可能无限循环；没有工具结果，它就无法真正接触外界。</p>
         <section class="agent-loop" aria-label="智能体循环互动演示">
           <div class="loop-track">
-            <div class="loop-step" data-loop-step="0"><span><strong>目标</strong><small>找出最新论文</small></span></div>
-            <div class="loop-step" data-loop-step="1"><span><strong>决定</strong><small>需要先搜索</small></span></div>
-            <div class="loop-step" data-loop-step="2"><span><strong>行动</strong><small>调用检索工具</small></span></div>
-            <div class="loop-step" data-loop-step="3"><span><strong>观察</strong><small>得到论文列表</small></span></div>
-            <div class="loop-step" data-loop-step="4"><span><strong>验证</strong><small>证据够了吗？</small></span></div>
+            <div class="loop-step" data-loop-step="0"><span><strong>目标</strong><small>生成可执行旅行方案</small></span></div>
+            <div class="loop-step" data-loop-step="1"><span><strong>决定</strong><small>先核验天气与交通</small></span></div>
+            <div class="loop-step" data-loop-step="2"><span><strong>行动</strong><small>调用天气、地图与官方检索</small></span></div>
+            <div class="loop-step" data-loop-step="3"><span><strong>观察</strong><small>得到预警、班次与开放信息</small></span></div>
+            <div class="loop-step" data-loop-step="4"><span><strong>验证</strong><small>能衔接、有来源和 Plan B 吗？</small></span></div>
           </div>
           <div class="loop-controls"><button class="button small" type="button" data-action="run-loop">运行一次循环</button><span class="loop-log">等待开始……</span></div>
         </section>
@@ -302,7 +302,7 @@ while not 已完成(state):
           explanation: "模型是重要组件，但不是整套能持续行动的软件系统。"
         },
         {
-          prompt: "“每天按固定步骤读取表格、生成报告并保存”优先应该设计成什么？",
+          prompt: "“出发前每天按固定步骤读取天气与已确认行程、生成提醒并保存”优先应该设计成什么？",
           options: ["固定工作流", "完全自主智能体", "多智能体系统", "只依赖长期记忆"],
           answer: 0,
           explanation: "路径稳定、规则清楚时，固定工作流更可靠、更便宜、更容易测试。"
@@ -347,6 +347,12 @@ while not 已完成(state):
   ],
 
   updates: [
+    {
+      date: "2026-07-22",
+      version: "v0.2.0",
+      title: "贯穿项目切换为旅行规划智能体",
+      description: "同步更新主项目定位、Agent Charter、课程场景、智能体循环、搜索关键词与安全审批边界；保留原有课程进度。"
+    },
     {
       date: "2026-07-22",
       version: "v0.1.0",
