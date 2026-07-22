@@ -2,7 +2,7 @@ window.CourseData = {
   meta: {
     title: "AI 智能体大师课",
     subtitle: "从 AI 小白到能独立设计、构建、评测和部署智能体",
-    version: "0.2.0",
+    version: "0.2.1",
     updated: "2026-07-22",
     coreLessons: 51,
     publishedLessons: 2,
@@ -347,6 +347,12 @@ while not 已完成(state):
   ],
 
   updates: [
+    {
+      date: "2026-07-22",
+      version: "v0.2.1",
+      title: "补齐旅行工具搜索索引",
+      description: "让 12306、航旅纵横、高德地图、星空摄影、小红书、抖音等旅行工具与场景词可以直接检索到对应课程。"
+    },
     {
       date: "2026-07-22",
       version: "v0.2.0",
