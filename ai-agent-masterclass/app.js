@@ -160,6 +160,20 @@
     return data.lessons.filter((lesson) => lesson.status === "published");
   }
 
+  function textbookLessons() {
+    return publishedLessons().filter((lesson) => lesson.contentStatus === "textbook");
+  }
+
+  function lessonContentLabel(lesson) {
+    return lesson.contentStatus === "textbook" ? "教材精修完成" : "理论初稿";
+  }
+
+  function moduleContentLabel(module) {
+    if (module.status === "textbook") return "本单元教材完成";
+    if (module.status === "in-progress") return "教材精修中";
+    return "理论初稿";
+  }
+
   function completedCount() {
     return publishedLessons().filter((lesson) => progress.completedLessons[lesson.id]).length;
   }
@@ -386,15 +400,15 @@
       <article class="page page-wide hero">
         <div class="hero-grid">
           <section>
-            <div class="eyebrow">51 课理论主干 · 免费开放 · 来源可追溯</div>
-            <h1>先把方法想明白，<br />再真正<em>构建智能体</em></h1>
-            <p class="lead">用“旅行规划智能体”贯穿 10 个模块，系统理解 AI 与 LLM、工具、检索、记忆、规划、多智能体、评测、安全和产品化。当前版本优先完成理论，实践将作为独立 LAB 逐步接回。</p>
+            <div class="eyebrow">逐单元教材精修 · 免费开放 · 来源可追溯</div>
+            <h1>不赶着把课标成完成，<br />先把每一单元<em>真正写透</em></h1>
+            <p class="lead">用“旅行规划智能体”贯穿 10 个模块、51 节课程。全部课程均保留可阅读的理论初稿，但只有经过扩写、逐节引证与交叉审校的课程才标记为“教材精修完成”；实践将在理论教材稳定后逐课接回。</p>
             <div class="hero-actions">
               ${primaryAction}
               <a class="button secondary" href="#/roadmap">查看完整路线</a>
             </div>
             <div class="stats-grid">
-              <div class="stat"><strong>${data.meta.coreLessons}</strong><span>理论课程</span></div>
+              <div class="stat"><strong>${textbookLessons().length}/${data.meta.coreLessons}</strong><span>教材精修</span></div>
               <div class="stat"><strong>${data.modules.length}</strong><span>学习模块</span></div>
               <div class="stat"><strong>${sourceRecords().length}</strong><span>唯一来源</span></div>
               <div class="stat"><strong>1</strong><span>贯穿案例</span></div>
@@ -410,7 +424,7 @@
         </div>
 
         <section class="section">
-          <div class="section-heading"><div><span class="eyebrow">理论建设期</span><h2>每个概念先形成可靠心智模型</h2></div><p>51 课统一回答目的、定义、机制、边界、权衡、误区、案例和来源。实践暂不扩张，避免工具反过来绑架课程结构。</p></div>
+          <div class="section-heading"><div><span class="eyebrow">单元完稿制</span><h2>一次完成一个可独立自学的单元</h2></div><p>理论初稿用于保留全局路线；教材精修版才要求完整定义、机制、对比表、推演案例、章中检查点和逐节来源。实践暂不扩张，避免工具反过来绑架课程结构。</p></div>
           <div class="cards-grid">
             <article class="card"><span class="card-number">机制</span><h3>从因果关系理解原理</h3><p>不把定义换一种说法重复，而是讲清输入、处理、状态变化与输出之间为什么这样连接。</p></article>
             <article class="card"><span class="card-number">边界</span><h3>知道它不能保证什么</h3><p>区分能力与承诺、工具与权限、上下文与记忆、流畅与真实，主动标出失败模式。</p></article>
@@ -427,9 +441,9 @@
   }
 
   function moduleCardHTML(module) {
-    const tag = module.status === "theory" ? "理论已发布" : `${module.lessons} 课`;
+    const tag = moduleContentLabel(module);
     return `
-      <article class="module-card ${module.status === "theory" ? "current" : ""}">
+      <article class="module-card ${module.status === "textbook" || module.status === "in-progress" ? "current" : ""}">
         <span class="num">${String(module.order).padStart(2, "0")}</span>
         <div><h3>${escapeHTML(module.title)}</h3><p>${escapeHTML(module.short)}</p></div>
         <span class="tag">${tag}</span>
@@ -447,10 +461,10 @@
         </summary>
         <div class="syllabus-body">
           <ol class="syllabus-list">${lessons.map((lesson) => `
-            <li class="released">
+            <li class="released ${lesson.contentStatus === "textbook" ? "textbook" : "draft"}">
               <span>${lesson.number}</span>
               <a href="#/lesson/${lesson.id}">${escapeHTML(lesson.title)}</a>
-              <small>理论已发布</small>
+              <small>${lessonContentLabel(lesson)}</small>
             </li>`).join("")}</ol>
           <p class="syllabus-project"><strong>案例主线：</strong>${escapeHTML(module.project)}</p>
         </div>
@@ -462,15 +476,15 @@
       <article class="page page-wide">
         <header class="lesson-header">
           <div class="eyebrow">Mastery Roadmap · v${data.meta.version}</div>
-          <h1>51 课理论主干：先建立完整方法，再进入实践</h1>
-          <p class="lesson-deck">10 个模块按知识依赖展开。每课都包含机制、边界、误区、旅行案例、理论自检与逐条来源；后续实验将以 LAB 形式关联到相应理论课，不改变主线编号。</p>
+          <h1>51 课完整路线：按单元逐步写成教材</h1>
+          <p class="lesson-deck">10 个模块按知识依赖展开。理论初稿保持全局不断线；教材精修按单元推进，达到完整篇幅、丰富教材组件、逐节引证和交叉审校后才更新状态。后续 LAB 仍关联原课号，不改变知识顺序。</p>
         </header>
 
         <section class="section-heading"><div><span class="eyebrow">学习阶段</span><h2>10 个模块，一条依赖链</h2></div><p>初学者建议按顺序学习；已有基础的读者可以跳转，但应先检查每课列出的先修知识。</p></section>
         <div class="module-grid">${data.modules.map(moduleCardHTML).join("")}</div>
 
         <section class="section">
-          <div class="section-heading"><div><span class="eyebrow">逐课细目</span><h2>51 课已经全部开放理论正文</h2></div><p>展开模块可直接进入每课。协议、框架和平台会更新，课程把稳定原理与时变实现明确分开。</p></div>
+          <div class="section-heading"><div><span class="eyebrow">逐课细目</span><h2>${textbookLessons().length} 节教材精修完成，${publishedLessons().length - textbookLessons().length} 节保留理论初稿</h2></div><p>两种状态都可直接阅读，但并不混称为同一完成度。展开模块可查看每节状态；协议、框架和平台会更新，课程把稳定原理与时变实现明确分开。</p></div>
           <div class="syllabus-grid">${data.modules.map(syllabusModuleHTML).join("")}</div>
         </section>
 
@@ -607,9 +621,10 @@
     const kindOrder = ["标准与协议", "法律与监管", "原始论文", "官方文档", "治理框架", "安全指南", "教材与专著", "权威定义"];
     publishedLessons().forEach((lesson) => {
       lesson.sources?.forEach((source) => {
-        const existing = records.get(source.url) || { ...source, lessons: [] };
+        const existing = records.get(source.url) || { ...source, lessons: [], uses: [] };
         if (!existing.lessons.some((item) => item.id === lesson.id)) {
           existing.lessons.push({ id: lesson.id, number: lesson.number, title: lesson.title });
+          existing.uses.push({ id: lesson.id, number: lesson.number, title: lesson.title, note: source.note });
         }
         records.set(source.url, existing);
       });
@@ -643,11 +658,157 @@
               <article class="source-card">
                 <span class="source-kind">${escapeHTML(source.kind)}</span>
                 <h3><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener">${escapeHTML(source.title)}</a></h3>
-                <p>${escapeHTML(source.note)}</p>
+                ${source.uses.length === 1
+                  ? `<p>${escapeHTML(source.uses[0].note)}</p>`
+                  : `<details class="source-uses">
+                      <summary>查看 ${source.uses.length} 节课各自引用它的范围</summary>
+                      <ul>${source.uses.map((use) => `
+                        <li><a href="#/lesson/${use.id}">${use.number} · ${escapeHTML(use.title)}</a><p>${escapeHTML(use.note)}</p></li>`).join("")}</ul>
+                    </details>`}
                 <small>用于：${source.lessons.map((lesson) => `<a href="#/lesson/${lesson.id}">${lesson.number}</a>`).join(" · ")}</small>
               </article>`).join("")}</div>
           </section>`).join("")}</div>
       </article>`;
+  }
+
+  function lessonSourceId(source, index) {
+    return source.id || `source-${index + 1}`;
+  }
+
+  function lessonSourceAnchor(lesson, source, index) {
+    return `${lesson.id}-${lessonSourceId(source, index)}`;
+  }
+
+  function sectionSourceRefsHTML(lesson, sourceRefs = []) {
+    if (!sourceRefs.length) return "";
+    const links = sourceRefs.map((sourceId) => {
+      const index = lesson.sources.findIndex((source, sourceIndex) => lessonSourceId(source, sourceIndex) === sourceId);
+      if (index < 0) return "";
+      const source = lesson.sources[index];
+      return `<button type="button" data-scroll-target="${lessonSourceAnchor(lesson, source, index)}" title="${escapeHTML(source.title)}" aria-label="来源 ${index + 1}：${escapeHTML(source.title)}">[${index + 1}]</button>`;
+    }).filter(Boolean);
+    return links.length
+      ? `<p class="section-sources"><strong>本节依据</strong>${links.join("")}</p>`
+      : "";
+  }
+
+  function definitionsHTML(definitions = []) {
+    if (!definitions.length) return "";
+    return `
+      <dl class="definition-grid">${definitions.map((item) => `
+        <div class="definition-card">
+          <dt>${escapeHTML(item.term)}</dt>
+          <dd>${escapeHTML(item.definition)}</dd>
+          ${item.note ? `<dd class="definition-note">${escapeHTML(item.note)}</dd>` : ""}
+        </div>`).join("")}</dl>`;
+  }
+
+  function tablesHTML(tables = []) {
+    return tables.map((table) => `
+      <figure class="textbook-table">
+        <figcaption>${escapeHTML(table.caption)}</figcaption>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="${escapeHTML(table.caption)}">
+          <table>
+            <thead><tr>${table.columns.map((column) => `<th scope="col">${escapeHTML(column)}</th>`).join("")}</tr></thead>
+            <tbody>${table.rows.map((row) => `
+              <tr>${row.map((cell, index) => index === 0
+                ? `<th scope="row">${escapeHTML(cell)}</th>`
+                : `<td>${escapeHTML(cell)}</td>`).join("")}</tr>`).join("")}</tbody>
+          </table>
+        </div>
+      </figure>`).join("");
+  }
+
+  function examplesHTML(examples = []) {
+    if (!examples.length) return "";
+    return `
+      <div class="worked-examples">${examples.map((example) => `
+        <article class="worked-example">
+          <span class="eyebrow">推演案例</span>
+          <h3>${escapeHTML(example.title)}</h3>
+          ${example.paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}
+          <p class="example-takeaway"><strong>由此得到：</strong>${escapeHTML(example.takeaway)}</p>
+        </article>`).join("")}</div>`;
+  }
+
+  function checkpointsHTML(checkpoints = []) {
+    if (!checkpoints.length) return "";
+    return `
+      <div class="section-checkpoints">
+        <h3>章中检查点</h3>
+        ${checkpoints.map((checkpoint, index) => `
+          <details>
+            <summary>${index + 1}. ${escapeHTML(checkpoint.prompt)}</summary>
+            <p>${escapeHTML(checkpoint.answer)}</p>
+          </details>`).join("")}
+      </div>`;
+  }
+
+  function readingGuideHTML(lesson) {
+    if (!lesson.readingGuide) return "";
+    return `
+      <section class="reading-guide">
+        <div>
+          <span class="eyebrow">教材阅读指南</span>
+          <h2>怎样学完，而不是只把页面滚到底</h2>
+          <p>建议投入约 ${escapeHTML(lesson.readingGuide.estimatedMinutes)} 分钟，可分多次完成。章节中的检查点用于即时校正理解，课末自检用于判断能否独立解释。</p>
+        </div>
+        <div class="reading-guide-grid">
+          <article>
+            <h3>阅读方法</h3>
+            <ul>${lesson.readingGuide.howToRead.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+          </article>
+          <article>
+            <h3>掌握证据</h3>
+            <ul>${lesson.readingGuide.masteryEvidence.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+          </article>
+        </div>
+      </section>`;
+  }
+
+  function scopeBoundaryHTML(lesson) {
+    if (!lesson.scopeBoundary) return "";
+    return `
+      <section class="scope-boundary" aria-labelledby="${lesson.id}-scope-title">
+        <span class="eyebrow">本课边界</span>
+        <h2 id="${lesson.id}-scope-title">这次讲到哪里，哪些内容稍后再学</h2>
+        <div class="scope-boundary-grid">
+          <article>
+            <h3>本课讲清</h3>
+            <ul>${lesson.scopeBoundary.covered.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+          </article>
+          <article>
+            <h3>明确后置</h3>
+            <ul>${lesson.scopeBoundary.deferred.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+          </article>
+        </div>
+      </section>`;
+  }
+
+  function engineeringLanguageNoteHTML(lesson) {
+    if (!lesson.engineeringLanguageNote) return "";
+    return `
+      <aside class="engineering-language-note">
+        <strong>工程用语说明</strong>
+        <p>${escapeHTML(lesson.engineeringLanguageNote)}</p>
+      </aside>`;
+  }
+
+  function theorySectionHTML(lesson, section, index) {
+    return `
+      <section class="theory-section ${lesson.contentStatus === "textbook" ? "textbook-section" : ""}" id="section-${index + 1}">
+        <span class="section-number">${String(index + 1).padStart(2, "0")}</span>
+        <h2>${escapeHTML(section.title)}</h2>
+        ${section.lead ? `<p class="section-lead">${escapeHTML(section.lead)}</p>` : ""}
+        ${definitionsHTML(section.definitions)}
+        ${section.paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}
+        ${section.bullets?.length ? `<ul>${section.bullets.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+        ${tablesHTML(section.tables)}
+        ${examplesHTML(section.examples)}
+        ${section.takeaway ? `<aside class="section-takeaway"><strong>本节要点</strong><p>${escapeHTML(section.takeaway)}</p></aside>` : ""}
+        ${checkpointsHTML(section.checkpoints)}
+        ${sectionSourceRefsHTML(lesson, section.sourceRefs)}
+      </section>`;
   }
 
   function travelCaseHTML(lesson, { opening = false } = {}) {
@@ -712,11 +873,18 @@
 
   function theoryLessonBodyHTML(lesson) {
     const caseFirst = lesson.teachingOrder === "case-first";
+    const contentLabel = lessonContentLabel(lesson);
     return `
       <div class="theory-status">
-        <span class="source-kind">理论版 · ${escapeHTML(lesson.revision || "v1")}</span>
-        <p>本课先建立稳定方法，不要求写代码或调用平台。后续 LAB 会直接关联到这套理论，不改变主线编号。</p>
+        <span class="source-kind">${contentLabel} · ${escapeHTML(lesson.revision || "v1")}</span>
+        <p>${lesson.contentStatus === "textbook"
+          ? "本课已通过教材篇幅、结构、逐节来源与交叉审校门禁；不要求写代码或调用平台，后续 LAB 会直接关联本课。"
+          : "本课目前是保持知识路线不断线的理论初稿，尚未达到教材精修标准；内容可先阅读，后续会按单元扩写并重新审校。"}</p>
       </div>
+
+      ${readingGuideHTML(lesson)}
+      ${scopeBoundaryHTML(lesson)}
+      ${engineeringLanguageNoteHTML(lesson)}
 
       <section class="objectives">
         <h2>完成这一课，你应该能</h2>
@@ -736,13 +904,7 @@
           <li><button type="button" data-scroll-target="section-${index + 1}">${escapeHTML(section.title)}</button></li>`).join("")}</ol>
       </nav>
 
-      ${lesson.sections.map((section, index) => `
-        <section class="theory-section" id="section-${index + 1}">
-          <span class="section-number">${String(index + 1).padStart(2, "0")}</span>
-          <h2>${escapeHTML(section.title)}</h2>
-          ${section.paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}
-          ${section.bullets?.length ? `<ul>${section.bullets.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
-        </section>`).join("")}
+      ${lesson.sections.map((section, index) => theorySectionHTML(lesson, section, index)).join("")}
 
       <section class="theory-section">
         <h2>常见误解与纠正</h2>
@@ -764,12 +926,13 @@
 
       <section class="theory-section" id="sources">
         <h2>主要来源与延伸阅读</h2>
-        <ul class="source-list">${lesson.sources.map((source) => `
-          <li>
+        <p class="source-note">精修课在每个章节末标出直接支撑该节的来源编号；来源存在不代表它支持正文中的所有结论，范围以每条说明为准。</p>
+        <ol class="source-list numbered">${lesson.sources.map((source, index) => `
+          <li id="${lessonSourceAnchor(lesson, source, index)}">
             <a href="${escapeHTML(source.url)}" target="_blank" rel="noopener">${escapeHTML(source.title)}</a>
             <span class="source-kind">${escapeHTML(source.kind)}</span>
             <small>${escapeHTML(source.note)}</small>
-          </li>`).join("")}</ul>
+          </li>`).join("")}</ol>
         <p class="source-note">来源核验日期：${escapeHTML(lesson.updated)}。标准、协议和产品文档会更新；课程引用的是页面在核验时支持的主张，不把未来版本视为自动兼容。</p>
       </section>
 
@@ -805,7 +968,7 @@
           <div class="breadcrumbs"><span>模块 ${String(module.order).padStart(2, "0")}</span><span>›</span><span>${escapeHTML(module.title)}</span></div>
           <h1>${escapeHTML(lesson.title)}</h1>
           <p class="lesson-deck">${escapeHTML(lesson.deck)}</p>
-          <div class="lesson-meta"><span class="pill published">理论已发布</span><span class="pill">${escapeHTML(lesson.duration)}</span><span class="pill">${escapeHTML(lesson.level)}</span><span class="pill">更新于 ${escapeHTML(lesson.updated)}</span></div>
+          <div class="lesson-meta"><span class="pill ${lesson.contentStatus === "textbook" ? "published" : "draft"}">${lessonContentLabel(lesson)}</span><span class="pill">${escapeHTML(lesson.duration)}</span><span class="pill">${escapeHTML(lesson.level)}</span><span class="pill">更新于 ${escapeHTML(lesson.updated)}</span></div>
         </header>
         <div class="lesson-body">${lesson.sections ? theoryLessonBodyHTML(lesson) : lesson.content}</div>
         <footer class="lesson-footer">
@@ -1127,7 +1290,38 @@
           ...(lesson.keywords || []),
           ...(lesson.objectives || []),
           ...(lesson.prerequisites || []),
-          ...(lesson.sections || []).flatMap((section) => [section.title, ...section.paragraphs, ...(section.bullets || [])]),
+          ...(lesson.readingGuide
+            ? [
+                ...(lesson.readingGuide.howToRead || []),
+                ...(lesson.readingGuide.masteryEvidence || [])
+              ]
+            : []),
+          ...(lesson.scopeBoundary
+            ? [...(lesson.scopeBoundary.covered || []), ...(lesson.scopeBoundary.deferred || [])]
+            : []),
+          lesson.engineeringLanguageNote || "",
+          ...(lesson.sections || []).flatMap((section) => [
+            section.title,
+            section.lead || "",
+            ...section.paragraphs,
+            ...(section.bullets || []),
+            ...(section.definitions || []).flatMap((item) => [item.term, item.definition, item.note || ""]),
+            ...(section.tables || []).flatMap((table) => [
+              table.caption,
+              ...table.columns,
+              ...table.rows.flat()
+            ]),
+            ...(section.examples || []).flatMap((example) => [
+              example.title,
+              ...example.paragraphs,
+              example.takeaway
+            ]),
+            ...(section.checkpoints || []).flatMap((checkpoint) => [
+              checkpoint.prompt,
+              checkpoint.answer
+            ]),
+            section.takeaway || ""
+          ]),
           ...(lesson.misconceptions || []).flatMap((item) => [item.claim, item.correction]),
           ...(lesson.travelCase
             ? [lesson.travelCase.title, ...(lesson.travelCase.paragraphs || []), ...(lesson.travelCase.decisionRules || [])]
