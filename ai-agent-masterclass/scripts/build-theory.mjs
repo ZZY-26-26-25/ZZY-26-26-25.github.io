@@ -22,9 +22,37 @@ const expectedCounts = {
   m09: 4
 };
 
+const TEXTBOOK_MINIMUM_CHARACTERS = {
+  "m00-l00": 12000,
+  "m00-l01": 16000
+};
+const TEXTBOOK_IDS = new Set(Object.keys(TEXTBOOK_MINIMUM_CHARACTERS));
+
 const fail = (message) => {
   throw new Error(message);
 };
+
+const countStrings = (value) => {
+  if (typeof value === "string") return value.length;
+  if (Array.isArray(value)) return value.reduce((sum, item) => sum + countStrings(item), 0);
+  if (value && typeof value === "object") {
+    return Object.entries(value).reduce(
+      (sum, [key, item]) => sum + (["id", "sourceRefs"].includes(key) ? 0 : countStrings(item)),
+      0
+    );
+  }
+  return 0;
+};
+
+const lessonBodyCharacters = (lesson) => countStrings({
+  objectives: lesson.objectives,
+  readingGuide: lesson.readingGuide,
+  sections: lesson.sections,
+  misconceptions: lesson.misconceptions,
+  travelCase: lesson.travelCase,
+  recap: lesson.recap,
+  questions: lesson.questions
+});
 
 const normalizeSourceKind = (kind) => {
   const value = String(kind || "").trim().toLocaleLowerCase("en-US");
@@ -62,6 +90,19 @@ const lessons = contentFiles.flatMap((name) => {
   if (!Array.isArray(list)) fail(`${name} 顶层必须是数组或包含 lessons 数组`);
   return list;
 });
+const rawLessonsById = new Map(lessons.map((lesson) => [lesson.id, lesson]));
+const reviewManifestPath = path.join(contentDir, "reviews", "m00-textbook-v1.json");
+if (!fs.existsSync(reviewManifestPath)) fail("缺少 M00 教材独立审校清单");
+const reviewManifestSource = fs.readFileSync(reviewManifestPath, "utf8");
+const reviewManifest = JSON.parse(reviewManifestSource);
+const reviewFingerprint = crypto.createHash("sha256").update(reviewManifestSource).digest("hex");
+const reviewedIds = new Set(reviewManifest.reviewScope || []);
+if (
+  reviewedIds.size !== TEXTBOOK_IDS.size ||
+  [...TEXTBOOK_IDS].some((lessonId) => !reviewedIds.has(lessonId))
+) {
+  fail("M00 教材审校范围与本版本精修课不一致");
+}
 
 const normalized = lessons
   .map((lesson) => ({
@@ -72,6 +113,7 @@ const normalized = lessons
     status: "published",
     phase: "theory",
     updated,
+    contentStatus: lesson.contentStatus || "theory-draft",
     revision: lesson.revision || "theory-v1",
     level: lesson.level || "零基础 · 理论课"
   }))
@@ -110,6 +152,12 @@ for (const lesson of normalized) {
   if (!Array.isArray(lesson.recap) || lesson.recap.length < 4) fail(`课程 ${lesson.id} 的小结少于 4 条`);
   if (!Array.isArray(lesson.questions) || lesson.questions.length < 3) fail(`课程 ${lesson.id} 的自检题少于 3 题`);
   if (!Array.isArray(lesson.sources) || lesson.sources.length < 3) fail(`课程 ${lesson.id} 的来源少于 3 个`);
+  if (!["theory-draft", "textbook"].includes(lesson.contentStatus)) {
+    fail(`课程 ${lesson.id} 的 contentStatus 无效：${lesson.contentStatus}`);
+  }
+  if (lesson.contentStatus === "textbook" && !TEXTBOOK_IDS.has(lesson.id)) {
+    fail(`课程 ${lesson.id} 未列入本版本教材精修范围`);
+  }
 
   lesson.sections.forEach((section, sectionIndex) => {
     if (!section.title || !Array.isArray(section.paragraphs) || section.paragraphs.length < 2) {
@@ -137,6 +185,153 @@ for (const lesson of normalized) {
     }
     if (url.protocol !== "https:") fail(`课程 ${lesson.id} 的来源必须使用 HTTPS：${source.url}`);
   });
+
+  if (lesson.contentStatus === "textbook") {
+    if (lesson.edition !== "textbook-v1") fail(`精修课 ${lesson.id} 缺少 textbook-v1 edition`);
+    if (lesson.revision !== "textbook-v1") fail(`精修课 ${lesson.id} 缺少 textbook-v1 revision`);
+    if (
+      !lesson.scopeBoundary ||
+      !Array.isArray(lesson.scopeBoundary.covered) ||
+      lesson.scopeBoundary.covered.length < 2 ||
+      !Array.isArray(lesson.scopeBoundary.deferred) ||
+      lesson.scopeBoundary.deferred.length < 2
+    ) {
+      fail(`精修课 ${lesson.id} 缺少明确的本课范围与后置内容`);
+    }
+    if (!lesson.engineeringLanguageNote || lesson.engineeringLanguageNote.length < 40) {
+      fail(`精修课 ${lesson.id} 缺少工程用语边界说明`);
+    }
+    if (!lesson.readingGuide || !Number.isFinite(lesson.readingGuide.estimatedMinutes)) {
+      fail(`精修课 ${lesson.id} 缺少 readingGuide.estimatedMinutes`);
+    }
+    if (!Array.isArray(lesson.readingGuide.howToRead) || lesson.readingGuide.howToRead.length < 3) {
+      fail(`精修课 ${lesson.id} 的阅读方法少于 3 条`);
+    }
+    if (!Array.isArray(lesson.readingGuide.masteryEvidence) || lesson.readingGuide.masteryEvidence.length < 3) {
+      fail(`精修课 ${lesson.id} 的掌握证据少于 3 条`);
+    }
+    if (lesson.objectives.length < 8) fail(`精修课 ${lesson.id} 的目标少于 8 个`);
+    if (lesson.sections.length < 10) fail(`精修课 ${lesson.id} 的教材章节少于 10 个`);
+    if (lesson.misconceptions.length < 6) fail(`精修课 ${lesson.id} 的误区少于 6 个`);
+    if (lesson.recap.length < 10) fail(`精修课 ${lesson.id} 的结论少于 10 条`);
+    if (lesson.questions.length < 8) fail(`精修课 ${lesson.id} 的自检题少于 8 道`);
+    if (lesson.sources.length < 12) fail(`精修课 ${lesson.id} 的来源少于 12 个`);
+
+    const minimumCharacters = TEXTBOOK_MINIMUM_CHARACTERS[lesson.id] || 12000;
+    const actualCharacters = lessonBodyCharacters(lesson);
+    if (actualCharacters < minimumCharacters) {
+      fail(`精修课 ${lesson.id} 理论字符不足：${actualCharacters} < ${minimumCharacters}`);
+    }
+
+    const sourceIds = new Set();
+    const sourceUrls = new Set();
+    lesson.sources.forEach((source, sourceIndex) => {
+      if (!source.id || !/^[a-z0-9][a-z0-9-]*$/.test(source.id)) {
+        fail(`精修课 ${lesson.id} 第 ${sourceIndex + 1} 个来源 ID 无效`);
+      }
+      if (sourceIds.has(source.id)) fail(`精修课 ${lesson.id} 来源 ID 重复：${source.id}`);
+      if (sourceUrls.has(source.url)) fail(`精修课 ${lesson.id} 来源 URL 重复：${source.url}`);
+      if (source.note.length < 40) fail(`精修课 ${lesson.id} 来源 ${source.id} 的适用范围说明过短`);
+      sourceIds.add(source.id);
+      sourceUrls.add(source.url);
+    });
+
+    let tableCount = 0;
+    let exampleCount = 0;
+    let checkpointCount = 0;
+    let definitionCount = 0;
+    const usedSourceIds = new Set();
+    const longTextLocations = new Map();
+    const checkDuplicateText = (text, location) => {
+      if (typeof text !== "string" || text.length < 80) return;
+      if (longTextLocations.has(text)) {
+        fail(`精修课 ${lesson.id} 存在重复长段落：${longTextLocations.get(text)} 与 ${location}`);
+      }
+      longTextLocations.set(text, location);
+    };
+    lesson.sections.forEach((section, sectionIndex) => {
+      if (!section.lead) fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节缺少 lead`);
+      if (section.paragraphs.length < 3) {
+        fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节正文少于 3 段`);
+      }
+      if (!Array.isArray(section.sourceRefs) || section.sourceRefs.length < 1) {
+        fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节缺少 sourceRefs`);
+      }
+      section.sourceRefs.forEach((sourceId) => {
+        if (!sourceIds.has(sourceId)) fail(`精修课 ${lesson.id} 引用了不存在的来源：${sourceId}`);
+        usedSourceIds.add(sourceId);
+      });
+
+      const definitions = section.definitions || [];
+      const tables = section.tables || [];
+      const examples = section.examples || [];
+      const checkpoints = section.checkpoints || [];
+      definitionCount += definitions.length;
+      tableCount += tables.length;
+      exampleCount += examples.length;
+      checkpointCount += checkpoints.length;
+      section.paragraphs.forEach((paragraph, paragraphIndex) => {
+        checkDuplicateText(paragraph, `第 ${sectionIndex + 1} 节第 ${paragraphIndex + 1} 段`);
+      });
+
+      tables.forEach((table, tableIndex) => {
+        if (!table.caption || !Array.isArray(table.columns) || table.columns.length < 2) {
+          fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节表 ${tableIndex + 1} 缺少标题或列`);
+        }
+        if (!Array.isArray(table.rows) || table.rows.length < 2) {
+          fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节表 ${tableIndex + 1} 少于 2 行`);
+        }
+        table.rows.forEach((row) => {
+          if (!Array.isArray(row) || row.length !== table.columns.length) {
+            fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节表格行列数不一致`);
+          }
+        });
+      });
+
+      examples.forEach((example, exampleIndex) => {
+        if (!example.title || !Array.isArray(example.paragraphs) || !example.paragraphs.length || !example.takeaway) {
+          fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节案例 ${exampleIndex + 1} 不完整`);
+        }
+        example.paragraphs.forEach((paragraph, paragraphIndex) => {
+          checkDuplicateText(
+            paragraph,
+            `第 ${sectionIndex + 1} 节案例 ${exampleIndex + 1} 第 ${paragraphIndex + 1} 段`
+          );
+        });
+      });
+
+      checkpoints.forEach((checkpoint, checkpointIndex) => {
+        if (!checkpoint.prompt || !checkpoint.answer) {
+          fail(`精修课 ${lesson.id} 第 ${sectionIndex + 1} 节检查点 ${checkpointIndex + 1} 不完整`);
+        }
+      });
+    });
+
+    if (definitionCount < 4) fail(`精修课 ${lesson.id} 的定义框少于 4 个`);
+    if (tableCount < 2) fail(`精修课 ${lesson.id} 的对比表少于 2 张`);
+    if (exampleCount < 3) fail(`精修课 ${lesson.id} 的推演案例少于 3 个`);
+    if (checkpointCount < 5) fail(`精修课 ${lesson.id} 的章中检查点少于 5 个`);
+    const unusedSourceIds = [...sourceIds].filter((sourceId) => !usedSourceIds.has(sourceId));
+    if (unusedSourceIds.length) {
+      fail(`精修课 ${lesson.id} 存在未被任何章节引用的来源：${unusedSourceIds.join("、")}`);
+    }
+
+    const rawLesson = rawLessonsById.get(lesson.id);
+    const actualReviewHash = `sha256-${crypto
+      .createHash("sha256")
+      .update(JSON.stringify(rawLesson))
+      .digest("hex")}`;
+    if (reviewManifest.lessonHashes?.[lesson.id] !== actualReviewHash) {
+      fail(`精修课 ${lesson.id} 已在审校后发生变化，请重新独立审校并更新内容指纹`);
+    }
+  }
+}
+
+for (const lessonId of TEXTBOOK_IDS) {
+  const lesson = normalized.find((item) => item.id === lessonId);
+  if (!lesson || lesson.contentStatus !== "textbook") {
+    fail(`本版本要求精修课 ${lessonId} 的 contentStatus 为 textbook`);
+  }
 }
 
 for (const [moduleId, expected] of Object.entries(expectedCounts)) {
@@ -157,6 +352,7 @@ const banner = [
   "/*",
   " * 由 scripts/build-theory.mjs 从 content/theory-*.json 生成。",
   ` * 内容指纹：sha256-${contentFingerprint}`,
+  ` * 审校指纹：sha256-${reviewFingerprint}`,
   " * 请修改对应理论稿后重新生成，不要直接手改本文件。",
   " */",
   ""
@@ -169,20 +365,10 @@ fs.writeFileSync(
 );
 
 const uniqueSources = new Set(normalized.flatMap((lesson) => lesson.sources.map((source) => source.url)));
-const theoryCharacters = normalized.reduce((sum, lesson) => {
-  const text = [
-    ...lesson.objectives,
-    ...lesson.sections.flatMap((section) => [...section.paragraphs, ...(section.bullets || [])]),
-    ...lesson.misconceptions.flatMap((item) => [item.claim, item.correction]),
-    ...lesson.travelCase.paragraphs,
-    ...lesson.travelCase.decisionRules,
-    ...lesson.recap,
-    ...lesson.questions.flatMap((item) => [item.prompt, item.answer])
-  ].join("");
-  return sum + text.length;
-}, 0);
+const theoryCharacters = normalized.reduce((sum, lesson) => sum + lessonBodyCharacters(lesson), 0);
+const textbookLessons = normalized.filter((lesson) => lesson.contentStatus === "textbook").length;
 
 console.log(
   `理论数据生成完成：${normalized.length} 课、${uniqueSources.size} 个唯一来源、` +
-  `${theoryCharacters.toLocaleString("zh-CN")} 个理论字符。`
+  `${theoryCharacters.toLocaleString("zh-CN")} 个理论字符、${textbookLessons} 节教材精修完成。`
 );
