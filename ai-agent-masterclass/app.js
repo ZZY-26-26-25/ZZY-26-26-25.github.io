@@ -7,16 +7,68 @@
   const CHARTER_KEY = "ai-agent-masterclass-charter-v1";
   const main = document.querySelector("#main-content");
   const sidebar = document.querySelector("#sidebar");
+  const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
+  const mobileLayout = window.matchMedia("(max-width: 980px)");
   let loopTimer = null;
+  let searchOpener = null;
 
   const defaultProgress = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     completedLessons: {},
     quizAttempts: {},
     lastVisited: null
   };
 
-  let progress = loadJSON(STORAGE_KEY, defaultProgress);
+  let progress = loadProgress();
+
+  function isPlainRecord(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function normalizeProgress(raw) {
+    const source = isPlainRecord(raw) ? raw : {};
+    const publicLessonIds = new Set(publishedLessons().map((lesson) => lesson.id));
+    const quizIds = new Set(Object.keys(data.quizzes));
+    const completedLessons = {};
+    const quizAttempts = {};
+
+    if (isPlainRecord(source.completedLessons)) {
+      Object.entries(source.completedLessons).forEach(([id, completedAt]) => {
+        if (publicLessonIds.has(id) && (typeof completedAt === "string" || completedAt === true)) {
+          completedLessons[id] = completedAt === true ? "imported" : completedAt;
+        }
+      });
+    }
+
+    if (isPlainRecord(source.quizAttempts)) {
+      Object.entries(source.quizAttempts).forEach(([id, attempts]) => {
+        if (!quizIds.has(id) || !Array.isArray(attempts)) return;
+        quizAttempts[id] = attempts
+          .filter((attempt) => isPlainRecord(attempt) && Number.isFinite(Number(attempt.score)))
+          .slice(-20)
+          .map((attempt) => ({
+            score: Math.max(0, Math.min(100, Number(attempt.score))),
+            completedAt: typeof attempt.completedAt === "string" ? attempt.completedAt : "imported"
+          }));
+      });
+    }
+
+    return {
+      schemaVersion: 2,
+      completedLessons,
+      quizAttempts,
+      lastVisited: typeof source.lastVisited === "string" ? source.lastVisited : null
+    };
+  }
+
+  function loadProgress() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return normalizeProgress(raw);
+    } catch {
+      return structuredCloneSafe(defaultProgress);
+    }
+  }
 
   function loadJSON(key, fallback) {
     try {
@@ -58,7 +110,7 @@
   }
 
   function getLesson(id) {
-    return data.lessons.find((lesson) => lesson.id === id);
+    return data.lessons.find((lesson) => lesson.id === id && lesson.status === "published");
   }
 
   function route() {
@@ -88,10 +140,20 @@
     toast.timer = setTimeout(() => node.classList.remove("show"), 2500);
   }
 
+  function setSidebarOpen(open, { focus = false } = {}) {
+    const shouldOpen = mobileLayout.matches && open;
+    sidebar.classList.toggle("open", shouldOpen);
+    sidebar.inert = mobileLayout.matches && !shouldOpen;
+    sidebar.setAttribute("aria-hidden", String(mobileLayout.matches && !shouldOpen));
+    mobileMenuToggle.setAttribute("aria-expanded", String(shouldOpen));
+    mobileMenuToggle.setAttribute("aria-label", shouldOpen ? "关闭课程目录" : "打开课程目录");
+    if (shouldOpen && focus) sidebar.querySelector(".module-title, a, button")?.focus();
+  }
+
   function renderSidebar() {
     const nav = document.querySelector("#course-nav");
     nav.innerHTML = data.modules.map((module) => {
-      const lessons = data.lessons.filter((lesson) => lesson.module === module.id);
+      const lessons = publishedLessons().filter((lesson) => lesson.module === module.id);
       const publishedMarkup = lessons.map((lesson) => {
         const done = Boolean(progress.completedLessons[lesson.id]);
         return `
@@ -101,11 +163,12 @@
           </a>`;
       }).join("");
 
-      const plannedMarkup = module.status === "planned" ? `
+      const remaining = Math.max(0, module.lessons - lessons.length);
+      const plannedMarkup = remaining ? `
         <span class="lesson-link planned">
           <span class="lesson-index">·</span>
-          <span>${module.lessons} 节课程</span>
-          <span class="lesson-status">筹备中</span>
+          <span>${lessons.length ? `后续 ${remaining} 课` : `${module.lessons} 节课程`}</span>
+          <span class="lesson-status">${module.status === "planned" ? "筹备中" : "持续更新"}</span>
         </span>` : "";
 
       return `
@@ -138,7 +201,7 @@
     if (countNode) countNode.textContent = `${count} / ${total} 课`;
     if (bar) bar.style.width = `${pct}%`;
 
-    data.lessons.forEach((lesson) => {
+    publishedLessons().forEach((lesson) => {
       const link = document.querySelector(`[data-lesson-link="${lesson.id}"]`);
       if (!link) return;
       const done = Boolean(progress.completedLessons[lesson.id]);
@@ -151,7 +214,10 @@
     const current = route();
     document.querySelectorAll(".topnav a").forEach((link) => {
       const linkSection = link.getAttribute("href").split("/")[1];
-      link.classList.toggle("active", linkSection === current.section || (current.section === "lesson" && linkSection === "roadmap"));
+      const active = linkSection === current.section || (current.section === "lesson" && linkSection === "roadmap");
+      link.classList.toggle("active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
     });
     document.querySelectorAll(".lesson-link").forEach((link) => {
       link.classList.toggle("active", link.dataset.lessonLink === current.id);
@@ -173,8 +239,8 @@
               <a class="button secondary" href="#/roadmap">查看完整路线</a>
             </div>
             <div class="stats-grid">
-              <div class="stat"><strong>51</strong><span>核心课程</span></div>
-              <div class="stat"><strong>10</strong><span>学习模块</span></div>
+              <div class="stat"><strong>${data.meta.coreLessons}</strong><span>核心课程</span></div>
+              <div class="stat"><strong>${data.modules.length}</strong><span>学习模块</span></div>
               <div class="stat"><strong>9</strong><span>阶段作品</span></div>
               <div class="stat"><strong>1</strong><span>毕业系统</span></div>
             </div>
@@ -209,12 +275,34 @@
   }
 
   function moduleCardHTML(module) {
+    const tag = module.status === "current" ? "学习中" : module.status === "released" ? "已发布" : `${module.lessons} 课`;
     return `
       <article class="module-card ${module.status === "current" ? "current" : ""}">
         <span class="num">${String(module.order).padStart(2, "0")}</span>
         <div><h3>${escapeHTML(module.title)}</h3><p>${escapeHTML(module.short)}</p></div>
-        <span class="tag">${module.status === "current" ? "学习中" : `${module.lessons} 课`}</span>
+        <span class="tag">${tag}</span>
       </article>`;
+  }
+
+  function syllabusModuleHTML(module) {
+    const releasedCount = data.lessons.filter((lesson) => lesson.module === module.id && lesson.status === "published").length;
+    return `
+      <details class="syllabus-module" ${module.status !== "planned" ? "open" : ""}>
+        <summary>
+          <span class="syllabus-number">${String(module.order).padStart(2, "0")}</span>
+          <span><strong>${escapeHTML(module.title)}</strong><small>${escapeHTML(module.outcome)}</small></span>
+          <span class="tag">${module.lessons} 课</span>
+        </summary>
+        <div class="syllabus-body">
+          <ol class="syllabus-list">${module.outline.map((title, index) => `
+            <li class="${index < releasedCount ? "released" : ""}">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <span>${escapeHTML(title)}</span>
+              <small>${index < releasedCount ? "已发布" : "待发布"}</small>
+            </li>`).join("")}</ol>
+          <p class="syllabus-project"><strong>阶段作品：</strong>${escapeHTML(module.project)}</p>
+        </div>
+      </details>`;
   }
 
   function roadmapHTML() {
@@ -223,11 +311,16 @@
         <header class="lesson-header">
           <div class="eyebrow">Mastery Roadmap · v${data.meta.version}</div>
           <h1>一条完整、但不会让初学者迷路的路线</h1>
-          <p class="lesson-deck">核心课程共 51 课。每个模块都产出一个能运行的新版本，最终形成可部署、可评测、可持续运行的旅行规划智能体。</p>
+          <p class="lesson-deck">核心课程共 ${data.meta.coreLessons} 课。每个模块都产出一个能运行的新版本，最终形成可部署、可评测、可持续运行的旅行规划智能体。</p>
         </header>
 
         <section class="section-heading"><div><span class="eyebrow">学习阶段</span><h2>10 个模块，9 次升级</h2></div><p>推荐每次只学一课；课程顺序可以根据你的实际项目调整，但阶段验收不会省略。</p></section>
         <div class="module-grid">${data.modules.map(moduleCardHTML).join("")}</div>
+
+        <section class="section">
+          <div class="section-heading"><div><span class="eyebrow">逐课细目</span><h2>51 课具体学什么</h2></div><p>展开任一模块查看课程、能力目标和阶段作品。协议、框架和平台会更新，但主干能力不会被某个工具绑定。</p></div>
+          <div class="syllabus-grid">${data.modules.map(syllabusModuleHTML).join("")}</div>
+        </section>
 
         <section class="section">
           <div class="section-heading"><div><span class="eyebrow">当前已发布</span><h2>从这里开始</h2></div></div>
@@ -320,10 +413,17 @@
     else if (current.section === "lesson" && getLesson(current.id)) main.innerHTML = lessonHTML(getLesson(current.id));
     else main.innerHTML = notFoundHTML();
 
+    const currentLesson = current.section === "lesson" ? getLesson(current.id) : null;
+    const pageNames = { home: "首页", roadmap: "学习路线", glossary: "术语库", updates: "更新日志" };
+    document.title = `${currentLesson?.title || pageNames[current.section] || "页面未找到"}｜${data.meta.title}`;
+    if (currentLesson) {
+      progress.lastVisited = currentLesson.id;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
     setActiveNavigation();
     bindPageInteractions();
-    sidebar.classList.remove("open");
-    window.scrollTo({ top: 0, behavior: "instant" });
+    setSidebarOpen(false);
+    window.scrollTo({ top: 0, behavior: "auto" });
     main.focus({ preventScroll: true });
   }
 
@@ -333,9 +433,13 @@
     document.querySelectorAll(".copy-code").forEach((button) => {
       button.addEventListener("click", async () => {
         const code = button.closest(".code-block").querySelector("code").innerText;
-        await navigator.clipboard.writeText(code);
-        button.textContent = "已复制";
-        setTimeout(() => { button.textContent = "复制"; }, 1400);
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = "已复制";
+          setTimeout(() => { button.textContent = "复制"; }, 1400);
+        } catch {
+          toast("复制失败，请手动选择代码");
+        }
       });
     });
 
@@ -420,8 +524,8 @@
           const feedback = document.createElement("p");
           feedback.className = "scenario-feedback";
           feedback.textContent = isCorrect
-            ? "判断正确。选择能完成任务的最低复杂度，通常更可靠。"
-            : "再想想：这件事的步骤是一次完成、完全固定，还是会随新信息动态变化？";
+            ? (scenario.dataset.correctFeedback || "判断正确。选择能完成任务的最低复杂度，通常更可靠。")
+            : (scenario.dataset.wrongFeedback || "再想想：这件事的步骤是一次完成、完全固定，还是会随新信息动态变化？");
           scenario.append(feedback);
         });
       });
@@ -482,14 +586,22 @@
       toast("契约已保存在当前浏览器");
     });
     builder.querySelector("[data-action='copy-charter']").addEventListener("click", async () => {
-      await navigator.clipboard.writeText(asText(currentCharter()));
-      toast("契约已复制，可以直接发给我");
+      try {
+        await navigator.clipboard.writeText(asText(currentCharter()));
+        toast("契约已复制，可以直接发给我");
+      } catch {
+        toast("复制失败，请手动保存契约内容");
+      }
     });
   }
 
   function openSearch() {
     const dialog = document.querySelector("#search-dialog");
+    setSidebarOpen(false);
+    searchOpener = document.activeElement;
     dialog.hidden = false;
+    document.querySelector(".topbar").inert = true;
+    document.querySelector(".app-shell").inert = true;
     const input = document.querySelector("#search-input");
     input.value = "";
     updateSearch("");
@@ -497,12 +609,18 @@
   }
 
   function closeSearch() {
-    document.querySelector("#search-dialog").hidden = true;
+    const dialog = document.querySelector("#search-dialog");
+    if (dialog.hidden) return;
+    dialog.hidden = true;
+    document.querySelector(".topbar").inert = false;
+    document.querySelector(".app-shell").inert = false;
+    searchOpener?.focus();
+    searchOpener = null;
   }
 
   function searchableItems() {
     return [
-      ...data.lessons.map((lesson) => ({
+      ...publishedLessons().map((lesson) => ({
         title: lesson.title,
         subtitle: `课程 · ${lesson.deck}`,
         text: [lesson.title, lesson.deck, ...lesson.keywords].join(" "),
@@ -513,6 +631,12 @@
         subtitle: `术语 · ${item.definition}`,
         text: [item.zh, item.en, item.definition].join(" "),
         href: "#/glossary"
+      })),
+      ...data.modules.map((module) => ({
+        title: `模块 ${String(module.order).padStart(2, "0")} · ${module.title}`,
+        subtitle: `路线 · ${module.outcome}`,
+        text: [module.title, module.short, module.outcome, module.project, ...module.outline].join(" "),
+        href: "#/roadmap"
       }))
     ];
   }
@@ -535,7 +659,7 @@
       localStorage.setItem(THEME_KEY, next);
     });
 
-    document.querySelector("#mobile-menu-toggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+    mobileMenuToggle.addEventListener("click", () => setSidebarOpen(!sidebar.classList.contains("open"), { focus: true }));
     document.querySelector("#search-trigger").addEventListener("click", openSearch);
     document.querySelector("#search-close").addEventListener("click", closeSearch);
     document.querySelector("#search-dialog").addEventListener("click", (event) => {
@@ -548,7 +672,28 @@
         event.preventDefault();
         openSearch();
       }
-      if (event.key === "Escape") closeSearch();
+      if (event.key === "Escape") {
+        if (!document.querySelector("#search-dialog").hidden) closeSearch();
+        else if (sidebar.classList.contains("open")) {
+          setSidebarOpen(false);
+          mobileMenuToggle.focus();
+        }
+      }
+      if (event.key === "Tab" && !document.querySelector("#search-dialog").hidden) {
+        const focusable = [...document.querySelector("#search-dialog").querySelectorAll("input, button, a[href], [tabindex]:not([tabindex='-1'])")]
+          .filter((node) => !node.disabled && !node.hidden);
+        if (focusable.length) {
+          const first = focusable[0];
+          const last = focusable.at(-1);
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      }
       if (!document.querySelector("#search-dialog").hidden && ["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) {
         const results = [...document.querySelectorAll(".search-result")];
         if (!results.length) return;
@@ -578,9 +723,10 @@
       const file = event.target.files?.[0];
       if (!file) return;
       try {
+        if (file.size > 1024 * 1024) throw new Error("too-large");
         const imported = JSON.parse(await file.text());
-        if (imported.schemaVersion !== 1 || typeof imported.completedLessons !== "object") throw new Error("invalid");
-        progress = { ...defaultProgress, ...imported };
+        if (![1, 2].includes(imported?.schemaVersion) || !isPlainRecord(imported)) throw new Error("invalid");
+        progress = normalizeProgress(imported);
         saveProgress();
         renderSidebar();
         updateProgressUI();
@@ -603,6 +749,8 @@
   renderSidebar();
   updateProgressUI();
   bindGlobalInteractions();
+  setSidebarOpen(false);
+  mobileLayout.addEventListener?.("change", () => setSidebarOpen(false));
   window.addEventListener("hashchange", render);
   if (!location.hash) navigate("home");
   else render();
