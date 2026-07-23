@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "unit": "m00",
+  "edition": "textbook-v1",
+  "reviewedAt": "2026-07-23",
+  "reviewScope": [
+    "m00-l00",
+    "m00-l01"
+  ],
+  "reviewMethod": [
+    "两节课分别独立编写，并遵守同一教材结构与来源规范。",
+    "第三条审校线检查零基础先修关系、术语边界、厂商定义、工具执行语义和来源适用范围。",
+    "主编合并后再次检查 M00 范围、跨课重复、逐节来源引用、教材组件和网站渲染。"
+  ],
+  "lessonHashes": {
+    "m00-l00": "sha256-61b524d5fa9a2c0a0172c7e81003f7767225852f3f229dc763c32f53cc001695",
+    "m00-l01": "sha256-056ff933ec30f30aed0bb55ff4dbbc1766c025f7d90ca0e165b556fb0cf934ac"
+  }
+}
