@@ -96,34 +96,40 @@
     }
   ];
 
-  const modules = moduleSpecs.map((module) => ({
-    ...module,
-    status: "theory",
-    outline: lessons
+  const modules = moduleSpecs.map((module) => {
+    const moduleLessons = lessons
       .filter((lesson) => lesson.module === module.id)
-      .sort((a, b) => a.order - b.order)
-      .map((lesson) => lesson.title)
-  }));
+      .sort((a, b) => a.order - b.order);
+    const textbookCount = moduleLessons.filter((lesson) => lesson.contentStatus === "textbook").length;
+    return {
+      ...module,
+      status: textbookCount === moduleLessons.length ? "textbook" : textbookCount ? "in-progress" : "draft",
+      textbookCount,
+      outline: moduleLessons.map((lesson) => lesson.title)
+    };
+  });
 
   window.CourseData = {
     meta: {
       title: "AI 智能体大师课",
       subtitle: "从 AI 小白到能独立理解、设计、构建、评测和运营智能体",
-      version: "0.4.1",
+      version: "0.5.0",
       updated: "2026-07-23",
       coreLessons: 51,
       publishedLessons: 51,
-      phase: "theory-foundation",
+      textbookLessons: lessons.filter((lesson) => lesson.contentStatus === "textbook").length,
+      phase: "unit-by-unit-textbook",
       repository: "https://github.com/ZZY-26-26-25/ZZY-26-26-25.github.io/tree/master/ai-agent-masterclass"
     },
 
     methodology: {
-      version: "1.0",
-      title: "先把 51 课理论方法铺完整",
-      summary: "课程当前冻结新增实践，先用统一结构讲清概念、机制、边界、权衡、误区、案例和来源；实践以后以 LAB 形式回接，不反过来决定知识顺序。",
+      version: "2.0",
+      title: "按单元把理论初稿精修成完整教材",
+      summary: "51 课理论初稿继续保持完整路线，但不再把“页面可打开”称为教材完成。课程从 M00 开始逐单元扩写、逐节引证和交叉审校；只有通过硬性质量门禁的课程才标记为“教材精修完成”。",
       rationale: [
-        "对于零基础学习者，过早进入 API、框架和 Notebook 容易形成“复制运行等于理解”的错觉。工具可以很快变化，但问题定义、系统边界、因果机制、风险控制和证据标准更稳定。",
-        "理论并不等于只背名词。好的理论应该能预测系统在什么条件下成功、为什么失败、哪些能力不能由一个组件自动保证，以及面对新框架时怎样重新映射。"
+        "一次性给 51 课都放入少量文字，可以建立知识地图，却不足以让零基础学习者独立掌握。现在明确区分“理论初稿”和“教材精修”，避免完成度数字掩盖内容深度。",
+        "教材精修不是简单拉长文字。每节必须补齐定义、机制、边界、对比、推演案例、章中检查点和逐节来源，并接受另一条审校线检查术语、先修关系与来源范围。",
+        "实践仍然暂缓。工具可以很快变化，但问题定义、系统边界、因果机制、风险控制和证据标准更稳定；等相应理论课达到教材标准后，再接入可替换的 LAB。"
       ],
       questions: [
         { title: "学习目的", description: "它解决什么问题？不理解会造成什么错误？" },
@@ -143,6 +149,7 @@
       ],
       sourceBoundary: "厂商宣传、排行榜、社交媒体和二手教程只能作为线索，不能单独支撑能力、价格、安全或效果声明。版本、价格、法律和产品能力属于时变信息，必须重新核验。",
       deferred: [
+        "不为了进度数字同时扩写多个单元；每轮只把一个单元做到可独立自学。",
         "不新增需要写代码或安装依赖的核心课任务。",
         "不继续扩展 Colab、免费 API 或框架教程。",
         "不把某个模型、SDK、排行榜或供应商变成课程主线。",
@@ -157,7 +164,7 @@
         "高级检索：GraphRAG、知识图谱、多模态检索和增量索引。",
         "按部署地区展开的隐私、消费者权益、平台条款、旅游和支付合规。"
       ],
-      practiceReturn: "理论稳定后，每课依次加入手工模拟、最小实验、故障注入、结果评测和旅行智能体增量。GitHub 网站承担教材主线，Colab 等平台只承担可替换的实验环境。"
+      practiceReturn: "相应单元通过教材精修门禁后，再逐课加入手工模拟、最小实验、故障注入、结果评测和旅行智能体增量。GitHub 网站承担教材主线，Colab 等平台只承担可替换的实验环境。"
     },
 
     modules,
@@ -235,6 +242,12 @@
     ],
 
     updates: [
+      {
+        date: "2026-07-23",
+        version: "v0.5.0",
+        title: "改为逐单元教材精修",
+        description: "不再把 51 节短篇理论稿统一标成完成；M00 两课率先扩写为完整教材，并新增定义框、对比表、推演案例、章中检查点、逐节来源和教材质量门禁。其余课程诚实标记为理论初稿，等待后续逐单元精修。"
+      },
       {
         date: "2026-07-23",
         version: "v0.4.1",
