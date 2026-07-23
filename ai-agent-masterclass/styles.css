@@ -399,6 +399,7 @@ kbd {
 .syllabus-list li small { padding: 2px 7px; border-radius: 20px; background: var(--surface-2); font-size: 9px; font-weight: 750; }
 .syllabus-list li.released { color: var(--ink); }
 .syllabus-list li.released small { background: var(--brand-soft); color: var(--brand-strong); }
+.syllabus-list li.released.draft small { border: 1px dashed var(--line); background: transparent; color: var(--muted); }
 .syllabus-project { margin: 15px 0 0; color: var(--muted); font-size: 13px; }
 
 .lesson-header { margin-bottom: 44px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
@@ -408,6 +409,7 @@ kbd {
 .lesson-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .pill { padding: 5px 10px; border-radius: 20px; background: var(--surface-2); color: var(--muted); font-size: 11px; font-weight: 700; }
 .pill.published { background: var(--brand-soft); color: var(--brand-strong); }
+.pill.draft { border: 1px dashed var(--line); background: transparent; color: var(--muted); }
 
 .lesson-body { font-size: 17px; }
 .lesson-body > h2 { margin: 64px 0 20px; scroll-margin-top: 94px; font-family: var(--font-serif); font-size: 32px; line-height: 1.28; }
@@ -532,6 +534,30 @@ p code, li code { padding: 2px 5px; border-radius: 5px; background: var(--surfac
 .source-list li { padding: 12px 0; border-bottom: 1px solid var(--line); }
 .source-list a { font-weight: 700; }
 .source-list small { display: block; color: var(--muted); }
+.source-uses { margin: 10px 0 12px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.source-uses summary { padding: 10px 0; cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 750; }
+.source-uses ul { margin: 0; padding: 0 0 10px; list-style: none; }
+.source-uses li { padding: 10px 0; border-top: 1px solid var(--line); }
+.source-uses li p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.source-list.numbered {
+  counter-reset: source;
+  list-style: none;
+}
+.source-list.numbered li {
+  position: relative;
+  padding-left: 42px;
+  scroll-margin-top: 96px;
+}
+.source-list.numbered li::before {
+  counter-increment: source;
+  content: "[" counter(source) "]";
+  position: absolute;
+  left: 0;
+  color: var(--brand);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
 
 .theory-status {
   display: grid;
@@ -545,6 +571,40 @@ p code, li code { padding: 2px 5px; border-radius: 5px; background: var(--surfac
   background: var(--brand-soft);
 }
 .theory-status p { margin: 0; color: var(--muted); font-size: 14px; }
+.reading-guide {
+  margin: 34px 0;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(145deg, var(--surface), var(--surface-2));
+}
+.reading-guide h2 { margin: 6px 0 10px; font-family: var(--font-serif); font-size: 27px; }
+.reading-guide > div:first-child > p { max-width: 760px; color: var(--muted); }
+.reading-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+.reading-guide-grid article { padding: 17px 19px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+.reading-guide-grid h3 { margin: 0 0 8px; font-size: 15px; }
+.reading-guide-grid ul { margin: 0; font-size: 14px; }
+.scope-boundary {
+  margin: 34px 0;
+  padding: 24px 26px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.scope-boundary > h2 { margin: 6px 0 18px; font-family: var(--font-serif); font-size: 25px; }
+.scope-boundary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.scope-boundary-grid article { padding: 17px 19px; border-radius: 13px; background: var(--surface-2); }
+.scope-boundary-grid article:last-child { border: 1px dashed var(--line); background: transparent; }
+.scope-boundary-grid h3 { margin: 0 0 8px; font-size: 15px; }
+.scope-boundary-grid ul { margin: 0; font-size: 14px; }
+.engineering-language-note {
+  margin: 24px 0 34px;
+  padding: 17px 20px;
+  border-left: 4px solid var(--accent);
+  border-radius: 4px 12px 12px 4px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.engineering-language-note p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
 .source-kind {
   display: inline-flex;
   width: fit-content;
@@ -603,6 +663,67 @@ p code, li code { padding: 2px 5px; border-radius: 5px; background: var(--surfac
   font-size: 32px;
   line-height: 1.28;
 }
+.textbook-section {
+  padding-top: 10px;
+}
+.section-lead {
+  margin: -8px 0 24px !important;
+  color: var(--muted);
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1.55;
+}
+.definition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin: 22px 0;
+}
+.definition-card {
+  padding: 18px 19px;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  border-radius: 13px;
+  background: var(--brand-soft);
+}
+.definition-card dt { margin: 0 0 7px; color: var(--brand-strong); font-size: 15px; font-weight: 800; }
+.definition-card dd { margin: 0; font-size: 14px; }
+.definition-card .definition-note { margin-top: 8px; color: var(--muted); line-height: 1.55; }
+.textbook-table { margin: 30px 0; }
+.textbook-table figcaption { margin-bottom: 9px; font-size: 14px; font-weight: 800; }
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.table-scroll:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 28%, transparent); outline-offset: 3px; }
+.textbook-table table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+.textbook-table th, .textbook-table td { padding: 13px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.textbook-table th:last-child, .textbook-table td:last-child { border-right: 0; }
+.textbook-table tbody tr:last-child th, .textbook-table tbody tr:last-child td { border-bottom: 0; }
+.textbook-table thead th { background: var(--surface-2); font-size: 12px; }
+.textbook-table tbody th { width: 20%; background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
+.worked-examples { display: grid; gap: 13px; margin: 28px 0; }
+.worked-example {
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand);
+  border-radius: 5px 15px 15px 5px;
+  background: var(--surface);
+}
+.worked-example h3 { margin: 6px 0 11px; font-size: 19px; }
+.worked-example p { font-size: 15px; }
+.worked-example .example-takeaway { margin-bottom: 0; padding-top: 11px; border-top: 1px solid var(--line); color: var(--muted); }
+.section-takeaway { margin: 24px 0; padding: 17px 19px; border-radius: 12px; background: var(--brand-soft); }
+.section-takeaway p { margin: 5px 0 0; }
+.section-checkpoints { margin: 28px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); }
+.section-checkpoints > h3 { margin: 0 0 10px; font-size: 15px; }
+.section-checkpoints details { border-top: 1px solid var(--line); }
+.section-checkpoints summary { padding: 12px 0; cursor: pointer; font-size: 14px; font-weight: 720; }
+.section-checkpoints details p { margin: 0; padding: 0 0 14px; color: var(--muted); font-size: 14px; }
+.section-sources { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-top: 28px !important; padding-top: 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.section-sources button { min-width: 30px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--brand); cursor: pointer; text-align: center; }
+.section-sources button:hover { border-color: var(--brand); background: var(--brand-soft); }
 .misconception-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -800,6 +921,7 @@ p code, li code { padding: 2px 5px; border-radius: 5px; background: var(--surfac
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .module-grid, .glossary-grid, .do-dont-grid, .platform-flow { grid-template-columns: 1fr; }
   .method-grid, .misconception-grid, .source-library { grid-template-columns: 1fr; }
+  .reading-guide-grid, .scope-boundary-grid, .definition-grid { grid-template-columns: 1fr; }
   .lesson-toc ol { grid-template-columns: 1fr; }
   .theory-status { grid-template-columns: 1fr; }
   .source-policy-list li { grid-template-columns: 1fr; gap: 4px; }
