@@ -4,9 +4,9 @@
 
 ## 当前版本
 
-- 版本：`v0.2.1`
-- 更新时间：`2026-07-22`
-- 已发布：导学课、第 1 课
+- 版本：`v0.3.0`
+- 更新时间：`2026-07-23`
+- 已发布：导学课、第 1 课、第 2 课（Colab 与模型 API）
 - 站点形态：无依赖静态站，可直接由 GitHub Pages 托管
 
 ## 文件
@@ -15,8 +15,18 @@
 - `styles.css`：响应式视觉系统
 - `course-data.js`：课程、测验、术语和更新日志
 - `app.js`：路由、搜索、进度、小测及互动实验
+- `labs/01-first-api-call.ipynb`：供应商无关、无内置密钥的 Colab 模型 API 实验
 
 学习进度和 Agent Charter 默认只存于访问者的 `localStorage`；网站不上传这些数据。需要真实模型 API 的后续实验不会在 GitHub Pages 前端保存密钥。
+
+## 实验平台边界
+
+- GitHub Pages：课程、Mock 互动、小测与本机学习进度。
+- GitHub：公开、可审查、可版本管理的 Notebook 与代码模板。
+- Google Colab：读取学习者自己授权的 Secret，并执行真实 API 调用。
+- 模型网关：只接入学习者有权使用且已确认服务条款的接口。
+
+公开仓库不会保存 API Key、私有旅行数据或机构内部凭据。任何曾出现在共享文档或 Git 历史中的密钥都应立即撤销并轮换。
 
 ## 每课发布协议
 
@@ -37,3 +47,9 @@ python3 -m http.server 4173
 ```
 
 然后访问 `http://localhost:4173/`。
+
+发布前运行内容与密钥校验：
+
+```bash
+node scripts/validate-course.mjs
+```
