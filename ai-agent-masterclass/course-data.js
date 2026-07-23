@@ -109,7 +109,7 @@
     meta: {
       title: "AI 智能体大师课",
       subtitle: "从 AI 小白到能独立理解、设计、构建、评测和运营智能体",
-      version: "0.4.0",
+      version: "0.4.1",
       updated: "2026-07-23",
       coreLessons: 51,
       publishedLessons: 51,
@@ -235,6 +235,12 @@
     ],
 
     updates: [
+      {
+        date: "2026-07-23",
+        version: "v0.4.1",
+        title: "进入实际教学验收阶段",
+        description: "以课号 01 为首个教学样本，改为旅行案例先行并收紧 LLM、工作流与 Agent 的定义；新增可本地保存的自检回答、疑问与“已理解/待复习”状态，旧进度自动迁移。"
+      },
       {
         date: "2026-07-23",
         version: "v0.4.0",
