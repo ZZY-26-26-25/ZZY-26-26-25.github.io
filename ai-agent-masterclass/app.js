@@ -14,10 +14,11 @@
   let searchIndex = null;
 
   const defaultProgress = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     completedLessons: {},
     quizAttempts: {},
-    lastVisited: null
+    lastVisited: null,
+    lessonProgress: {}
   };
 
   let progress = loadProgress();
@@ -32,6 +33,7 @@
     const quizIds = new Set(Object.keys(data.quizzes));
     const completedLessons = {};
     const quizAttempts = {};
+    const lessonProgress = {};
 
     if (isPlainRecord(source.completedLessons)) {
       Object.entries(source.completedLessons).forEach(([id, completedAt]) => {
@@ -54,18 +56,77 @@
       });
     }
 
+    if (isPlainRecord(source.lessonProgress)) {
+      Object.entries(source.lessonProgress).forEach(([id, record]) => {
+        if (!publicLessonIds.has(id) || !isPlainRecord(record)) return;
+        const selfChecks = {};
+        if (isPlainRecord(record.selfChecks)) {
+          Object.entries(record.selfChecks).slice(0, 12).forEach(([questionId, answer]) => {
+            if (!/^\d{1,2}$/.test(questionId) || !isPlainRecord(answer)) return;
+            const assessment = ["clear", "review"].includes(answer.assessment) ? answer.assessment : null;
+            const draft = typeof answer.draft === "string" ? answer.draft.slice(0, 2000) : "";
+            if (draft || assessment) selfChecks[questionId] = { draft, assessment };
+          });
+        }
+        const understanding = ["understood", "questions"].includes(record.understanding)
+          ? record.understanding
+          : null;
+        lessonProgress[id] = {
+          openedAt: typeof record.openedAt === "string" ? record.openedAt : null,
+          readAt: typeof record.readAt === "string" ? record.readAt : null,
+          understanding,
+          understoodAt: typeof record.understoodAt === "string" ? record.understoodAt : null,
+          doubtNote: typeof record.doubtNote === "string" ? record.doubtNote.slice(0, 2000) : "",
+          selfChecks,
+          contentRevision: typeof record.contentRevision === "string" ? record.contentRevision.slice(0, 80) : null,
+          migratedFromComplete: record.migratedFromComplete === true
+        };
+      });
+    }
+
+    Object.entries(completedLessons).forEach(([id, completedAt]) => {
+      if (!lessonProgress[id]) {
+        lessonProgress[id] = {
+          openedAt: completedAt,
+          readAt: completedAt,
+          understanding: "understood",
+          understoodAt: completedAt,
+          doubtNote: "",
+          selfChecks: {},
+          contentRevision: "legacy",
+          migratedFromComplete: true
+        };
+      } else if (!lessonProgress[id].understanding) {
+        lessonProgress[id].understanding = "understood";
+        lessonProgress[id].understoodAt ||= completedAt;
+      }
+    });
+
+    Object.entries(lessonProgress).forEach(([id, record]) => {
+      if (record.understanding === "understood") {
+        completedLessons[id] ||= record.understoodAt || record.readAt || "imported";
+      } else {
+        delete completedLessons[id];
+      }
+    });
+
     return {
-      schemaVersion: 2,
+      schemaVersion: 3,
       completedLessons,
       quizAttempts,
-      lastVisited: typeof source.lastVisited === "string" ? source.lastVisited : null
+      lastVisited: typeof source.lastVisited === "string" && publicLessonIds.has(source.lastVisited)
+        ? source.lastVisited
+        : null,
+      lessonProgress
     };
   }
 
   function loadProgress() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      return normalizeProgress(raw);
+      const normalized = normalizeProgress(raw);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+      return normalized;
     } catch {
       return structuredCloneSafe(defaultProgress);
     }
@@ -85,8 +146,14 @@
   }
 
   function saveProgress() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-    updateProgressUI();
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      updateProgressUI();
+      return true;
+    } catch {
+      toast("当前浏览器无法保存学习记录，请先导出或缩短个人笔记");
+      return false;
+    }
   }
 
   function publishedLessons() {
@@ -97,13 +164,49 @@
     return publishedLessons().filter((lesson) => progress.completedLessons[lesson.id]).length;
   }
 
+  function questionCount() {
+    return publishedLessons().filter((lesson) => progress.lessonProgress[lesson.id]?.understanding === "questions").length;
+  }
+
   function percentage() {
     const total = publishedLessons().length;
     return total ? Math.round((completedCount() / total) * 100) : 0;
   }
 
   function nextLesson() {
-    return publishedLessons().find((lesson) => !progress.completedLessons[lesson.id]) || publishedLessons().at(-1);
+    const last = getLesson(progress.lastVisited);
+    if (last && !progress.completedLessons[last.id]) return last;
+    return publishedLessons().find((lesson) => !progress.completedLessons[lesson.id]) || null;
+  }
+
+  function lessonRecord(id) {
+    return progress.lessonProgress[id] || null;
+  }
+
+  function ensureLessonRecord(lesson) {
+    const now = new Date().toISOString();
+    progress.lessonProgress[lesson.id] ||= {
+      openedAt: now,
+      readAt: null,
+      understanding: null,
+      understoodAt: null,
+      doubtNote: "",
+      selfChecks: {},
+      contentRevision: lesson.revision || null,
+      migratedFromComplete: false
+    };
+    progress.lessonProgress[lesson.id].openedAt ||= now;
+    progress.lessonProgress[lesson.id].selfChecks ||= {};
+    return progress.lessonProgress[lesson.id];
+  }
+
+  function lessonStarted(id) {
+    const record = lessonRecord(id);
+    return Boolean(
+      record?.openedAt ||
+      record?.doubtNote ||
+      Object.keys(record?.selfChecks || {}).length
+    );
   }
 
   function getModule(id) {
@@ -165,9 +268,19 @@
       const lessons = moduleLessons(module.id);
       const publishedMarkup = lessons.map((lesson) => {
         const done = Boolean(progress.completedLessons[lesson.id]);
+        const hasQuestions = lessonRecord(lesson.id)?.understanding === "questions";
+        const started = !done && !hasQuestions && lessonStarted(lesson.id);
+        const statusLabel = done
+          ? "已理解"
+          : hasQuestions
+            ? "有疑问，待复习"
+            : started
+              ? "学习中"
+              : "未开始";
+        const statusMark = done ? "✓" : hasQuestions ? "?" : started ? "•" : lesson.number;
         return `
-          <a class="lesson-link ${done ? "done" : ""}" href="#/lesson/${lesson.id}" data-lesson-link="${lesson.id}">
-            <span class="lesson-index">${done ? "✓" : lesson.number}</span>
+          <a class="lesson-link ${done ? "done" : ""} ${hasQuestions ? "questions" : ""} ${started ? "started" : ""}" href="#/lesson/${lesson.id}" data-lesson-link="${lesson.id}" aria-label="${escapeHTML(lesson.shortTitle)}，${statusLabel}">
+            <span class="lesson-index" aria-hidden="true">${statusMark}</span>
             <span>${escapeHTML(lesson.shortTitle)}</span>
           </a>`;
       }).join("");
@@ -214,15 +327,19 @@
     const countNode = document.querySelector("#sidebar-progress-count");
     const bar = document.querySelector("#sidebar-progress-bar");
     if (label) label.textContent = `${pct}%`;
-    if (countNode) countNode.textContent = `${count} / ${total} 课`;
+    if (countNode) countNode.textContent = `理解 ${count} / ${total} · 疑问 ${questionCount()}`;
     if (bar) bar.style.width = `${pct}%`;
 
     publishedLessons().forEach((lesson) => {
       const link = document.querySelector(`[data-lesson-link="${lesson.id}"]`);
       if (!link) return;
       const done = Boolean(progress.completedLessons[lesson.id]);
+      const hasQuestions = lessonRecord(lesson.id)?.understanding === "questions";
+      const started = !done && !hasQuestions && lessonStarted(lesson.id);
       link.classList.toggle("done", done);
-      link.querySelector(".lesson-index").textContent = done ? "✓" : lesson.number;
+      link.classList.toggle("questions", hasQuestions);
+      link.classList.toggle("started", started);
+      link.querySelector(".lesson-index").textContent = done ? "✓" : hasQuestions ? "?" : started ? "•" : lesson.number;
     });
   }
 
@@ -255,6 +372,16 @@
   function homeHTML() {
     const next = nextLesson();
     const pct = percentage();
+    const primaryAction = next
+      ? `<a class="button" href="#/lesson/${next.id}">${progress.lastVisited || completedCount() ? "继续学习" : "从导学课开始"} <span aria-hidden="true">→</span></a>`
+      : `<a class="button" href="#/roadmap">查看已完成的课程 <span aria-hidden="true">→</span></a>`;
+    const nextCard = next
+      ? `<small>接下来</small>
+          <strong>${escapeHTML(next.title)}</strong>
+          <a class="button small" href="#/lesson/${next.id}">进入课程</a>`
+      : `<small>理论主干</small>
+          <strong>51 课均已确认理解</strong>
+          <a class="button small" href="#/roadmap">回顾学习路线</a>`;
     return `
       <article class="page page-wide hero">
         <div class="hero-grid">
@@ -263,7 +390,7 @@
             <h1>先把方法想明白，<br />再真正<em>构建智能体</em></h1>
             <p class="lead">用“旅行规划智能体”贯穿 10 个模块，系统理解 AI 与 LLM、工具、检索、记忆、规划、多智能体、评测、安全和产品化。当前版本优先完成理论，实践将作为独立 LAB 逐步接回。</p>
             <div class="hero-actions">
-              <a class="button" href="#/lesson/${next.id}">${completedCount() ? "继续学习" : "从导学课开始"} <span aria-hidden="true">→</span></a>
+              ${primaryAction}
               <a class="button secondary" href="#/roadmap">查看完整路线</a>
             </div>
             <div class="stats-grid">
@@ -276,13 +403,9 @@
           <aside class="hero-card">
             <span class="hero-card-label">当前课程进度</span>
             <div class="hero-progress-number">${pct}%</div>
-            <span class="muted">已完成 ${completedCount()} / ${publishedLessons().length} 节已发布课程</span>
+            <span class="muted">已确认理解 ${completedCount()} / ${publishedLessons().length} 节 · ${questionCount()} 节待复习</span>
             <div class="progress-track"><span style="width:${pct}%"></span></div>
-            <div class="next-lesson-card">
-              <small>接下来</small>
-              <strong>${escapeHTML(next.title)}</strong>
-              <a class="button small" href="#/lesson/${next.id}">进入课程</a>
-            </div>
+            <div class="next-lesson-card">${nextCard}</div>
           </aside>
         </div>
 
@@ -527,7 +650,68 @@
       </article>`;
   }
 
+  function travelCaseHTML(lesson, { opening = false } = {}) {
+    return `
+      <section class="travel-theory-case ${opening ? "opening-case" : ""}">
+        <span class="eyebrow">${opening ? "先从具体任务开始" : "贯穿案例"} · 旅行规划智能体</span>
+        <h2>${escapeHTML(lesson.travelCase.title)}</h2>
+        ${lesson.travelCase.paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}
+        <h3>本案例的决策规则</h3>
+        <ul>${lesson.travelCase.decisionRules.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+      </section>`;
+  }
+
+  function theoryQuestionsHTML(lesson) {
+    const record = lessonRecord(lesson.id) || {};
+    const checks = record.selfChecks || {};
+    const status = record.understanding;
+    const revisionChanged = Boolean(record.contentRevision && record.contentRevision !== lesson.revision);
+    const statusText = status === "understood"
+      ? "已确认理解"
+      : status === "questions"
+        ? "已加入待复习"
+        : "尚未判断理解状态";
+    return `
+      <section class="theory-section learning-record" data-learning-record="${lesson.id}">
+        <h2>理论自检与学习记录</h2>
+        <p class="muted">先写下自己的解释，再展开参考答案。你不必照抄措辞；重点是能说明因果、边界和旅行案例中的判断。</p>
+        ${revisionChanged ? `<p class="revision-warning">这份记录基于 ${escapeHTML(record.contentRevision)}，本课当前为 ${escapeHTML(lesson.revision)}。原记录已保留，请复核后重新判断理解状态。</p>` : ""}
+        <div class="theory-questions">${lesson.questions.map((item, index) => {
+          const answer = checks[String(index)] || {};
+          return `
+            <article class="learning-question">
+              <h3>${index + 1}. ${escapeHTML(item.prompt)}</h3>
+              <label>
+                <span>我的回答（可选）</span>
+                <textarea data-self-check-draft="${index}" maxlength="2000" placeholder="用自己的话解释，不必追求术语完整……">${escapeHTML(answer.draft || "")}</textarea>
+              </label>
+              <fieldset class="understanding-choice">
+                <legend>这道题目前的状态</legend>
+                <label><input type="radio" name="assessment-${lesson.id}-${index}" value="clear" data-self-check-assessment="${index}" ${answer.assessment === "clear" ? "checked" : ""} /> 我能解释</label>
+                <label><input type="radio" name="assessment-${lesson.id}-${index}" value="review" data-self-check-assessment="${index}" ${answer.assessment === "review" ? "checked" : ""} /> 需要复习</label>
+              </fieldset>
+              <details>
+                <summary>查看参考答案</summary>
+                <p>${escapeHTML(item.answer)}</p>
+              </details>
+            </article>`;
+        }).join("")}</div>
+        <label class="doubt-field">
+          <span>我仍有的疑问（可选）</span>
+          <textarea data-doubt-note maxlength="2000" placeholder="例如：我还不能判断工作流和 Agent 的边界……">${escapeHTML(record.doubtNote || "")}</textarea>
+        </label>
+        <p class="privacy-note muted">记录只保存在当前浏览器；导出学习进度时会包含这些文字。不要填写 API Key、证件号、订单号或私人行程。</p>
+        <div class="learning-actions">
+          <button class="button ghost" type="button" data-action="save-learning" data-understanding="">只保存记录</button>
+          <button class="button secondary" type="button" data-action="save-learning" data-understanding="questions">我仍有疑问</button>
+          <button class="button" type="button" data-action="save-learning" data-understanding="understood">我能解释本课</button>
+          <span class="learning-status" aria-live="polite">${statusText}</span>
+        </div>
+      </section>`;
+  }
+
   function theoryLessonBodyHTML(lesson) {
+    const caseFirst = lesson.teachingOrder === "case-first";
     return `
       <div class="theory-status">
         <span class="source-kind">理论版 · ${escapeHTML(lesson.revision || "v1")}</span>
@@ -543,6 +727,8 @@
         <h2>先修与位置</h2>
         <ul>${lesson.prerequisites.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
       </section>
+
+      ${caseFirst ? travelCaseHTML(lesson, { opening: true }) : ""}
 
       <nav class="lesson-toc" aria-label="本课目录">
         <strong>本课目录</strong>
@@ -567,28 +753,14 @@
           </article>`).join("")}</div>
       </section>
 
-      <section class="travel-theory-case">
-        <span class="eyebrow">贯穿案例 · 旅行规划智能体</span>
-        <h2>${escapeHTML(lesson.travelCase.title)}</h2>
-        ${lesson.travelCase.paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}
-        <h3>本案例的决策规则</h3>
-        <ul>${lesson.travelCase.decisionRules.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
-      </section>
+      ${caseFirst ? "" : travelCaseHTML(lesson)}
 
       <section class="theory-section">
         <h2>本课结论</h2>
         <ol class="recap-list">${lesson.recap.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ol>
       </section>
 
-      <section class="theory-section">
-        <h2>理论自检</h2>
-        <p class="muted">先在心里完整回答，再展开参考答案。重点是解释因果和边界，不是背术语。</p>
-        <div class="theory-questions">${lesson.questions.map((item, index) => `
-          <details>
-            <summary>${index + 1}. ${escapeHTML(item.prompt)}</summary>
-            <p>${escapeHTML(item.answer)}</p>
-          </details>`).join("")}</div>
-      </section>
+      ${theoryQuestionsHTML(lesson)}
 
       <section class="theory-section" id="sources">
         <h2>主要来源与延伸阅读</h2>
@@ -608,12 +780,25 @@
   }
 
   function lessonHTML(lesson) {
+    const record = ensureLessonRecord(lesson);
     const module = getModule(lesson.module);
     const lessons = publishedLessons();
     const index = lessons.findIndex((item) => item.id === lesson.id);
     const prev = lessons[index - 1];
     const next = lessons[index + 1];
-    const done = Boolean(progress.completedLessons[lesson.id]);
+    const status = record.understanding;
+    const statusLabel = status === "understood"
+      ? "✓ 已确认理解"
+      : status === "questions"
+        ? "？有疑问，待复习"
+        : "尚未完成学习判断";
+    const nextAction = next
+      ? status
+        ? `<a class="button" href="#/lesson/${next.id}">${escapeHTML(next.shortTitle)} →</a>`
+        : `<button class="button" type="button" data-action="prompt-learning-decision">完成学习判断后继续</button>`
+      : status
+        ? `<a class="button" href="#/roadmap">查看下一阶段 →</a>`
+        : `<button class="button" type="button" data-action="prompt-learning-decision">完成学习判断</button>`;
     return `
       <article class="page lesson-page" data-current-lesson="${lesson.id}">
         <header class="lesson-header">
@@ -625,8 +810,8 @@
         <div class="lesson-body">${lesson.sections ? theoryLessonBodyHTML(lesson) : lesson.content}</div>
         <footer class="lesson-footer">
           <div>${prev ? `<a class="button ghost" href="#/lesson/${prev.id}">← ${escapeHTML(prev.shortTitle)}</a>` : `<a class="button ghost" href="#/roadmap">← 学习路线</a>`}</div>
-          <button class="button complete-button ${done ? "done" : ""}" type="button" data-action="toggle-complete" data-lesson="${lesson.id}">${done ? "✓ 已完成本课" : "标记为已完成"}</button>
-          <div>${next ? `<a class="button" href="#/lesson/${next.id}">${escapeHTML(next.shortTitle)} →</a>` : `<a class="button" href="#/roadmap">查看下一阶段 →</a>`}</div>
+          <span class="lesson-understanding-status ${status || "undecided"}">${statusLabel}</span>
+          <div>${nextAction}</div>
         </footer>
       </article>`;
   }
@@ -661,7 +846,7 @@
     document.title = `${currentLesson?.title || pageNames[current.section] || "页面未找到"}｜${data.meta.title}`;
     if (currentLesson) {
       progress.lastVisited = currentLesson.id;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      saveProgress();
     }
     setActiveNavigation();
     bindPageInteractions();
@@ -699,13 +884,59 @@
       });
     });
 
-    document.querySelector("[data-action='toggle-complete']")?.addEventListener("click", (event) => {
-      const id = event.currentTarget.dataset.lesson;
-      if (progress.completedLessons[id]) delete progress.completedLessons[id];
-      else progress.completedLessons[id] = new Date().toISOString();
-      saveProgress();
-      render();
-      toast(progress.completedLessons[id] ? "已完成本课，学习进度已保存" : "已取消完成标记");
+    document.querySelectorAll("[data-action='save-learning']").forEach((button) => {
+      button.addEventListener("click", () => {
+        const container = button.closest("[data-learning-record]");
+        const lesson = getLesson(container?.dataset.learningRecord);
+        if (!container || !lesson) return;
+        const record = ensureLessonRecord(lesson);
+        const selfChecks = {};
+
+        lesson.questions.forEach((_, index) => {
+          const draft = container.querySelector(`[data-self-check-draft="${index}"]`)?.value.trim().slice(0, 2000) || "";
+          const assessment = container.querySelector(`[data-self-check-assessment="${index}"]:checked`)?.value || null;
+          if (draft || assessment) selfChecks[String(index)] = { draft, assessment };
+        });
+
+        const requestedStatus = button.dataset.understanding || null;
+        if (requestedStatus === "understood") {
+          const incomplete = lesson.questions.some((_, index) => selfChecks[String(index)]?.assessment !== "clear");
+          if (incomplete) {
+            toast("请先把每道自检题标为“我能解释”；未想通的内容可标记为“需要复习”");
+            return;
+          }
+        }
+
+        const now = new Date().toISOString();
+        record.selfChecks = selfChecks;
+        record.doubtNote = container.querySelector("[data-doubt-note]")?.value.trim().slice(0, 2000) || "";
+        record.readAt ||= now;
+        record.contentRevision = lesson.revision || null;
+        record.migratedFromComplete = false;
+
+        if (requestedStatus) {
+          record.understanding = requestedStatus;
+          record.understoodAt = requestedStatus === "understood" ? now : null;
+          if (requestedStatus === "understood") progress.completedLessons[lesson.id] = now;
+          else delete progress.completedLessons[lesson.id];
+        }
+
+        saveProgress();
+        renderSidebar();
+        render();
+        toast(
+          requestedStatus === "understood"
+            ? "已确认理解本课，学习记录已保存"
+            : requestedStatus === "questions"
+              ? "已保存疑问并加入待复习"
+              : "学习记录已保存在当前浏览器"
+        );
+      });
+    });
+
+    document.querySelector("[data-action='prompt-learning-decision']")?.addEventListener("click", () => {
+      document.querySelector("[data-learning-record]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      toast("请先保存“我仍有疑问”或“我能解释本课”，再继续下一课");
     });
 
     bindScenarioClassifier();
@@ -1024,7 +1255,7 @@
       try {
         if (file.size > 1024 * 1024) throw new Error("too-large");
         const imported = JSON.parse(await file.text());
-        if (![1, 2].includes(imported?.schemaVersion) || !isPlainRecord(imported)) throw new Error("invalid");
+        if (![1, 2, 3].includes(imported?.schemaVersion) || !isPlainRecord(imported)) throw new Error("invalid");
         progress = normalizeProgress(imported);
         saveProgress();
         renderSidebar();
