@@ -72,7 +72,7 @@ const normalized = lessons
     status: "published",
     phase: "theory",
     updated,
-    revision: "theory-v1",
+    revision: lesson.revision || "theory-v1",
     level: lesson.level || "零基础 · 理论课"
   }))
   .sort((a, b) => a.module.localeCompare(b.module) || a.order - b.order)
