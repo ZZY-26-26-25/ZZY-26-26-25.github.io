@@ -198,6 +198,14 @@ for (const asset of ["styles.css", "theory-lessons.js", "course-data.js", "app.j
   check(indexHTML.includes(`${asset}?v=${data.meta.version}`), `${asset} 的缓存版本未同步到 v${data.meta.version}`);
 }
 
+const appSource = fs.readFileSync(path.join(root, "app.js"), "utf8");
+check(appSource.includes("schemaVersion: 3"), "学习进度应使用 schemaVersion 3");
+check(appSource.includes("lessonProgress"), "学习进度应区分课级理解状态与疑问");
+check(appSource.includes("data-learning-record"), "理论课应提供可保存的学习记录");
+const firstTeachingLesson = data.lessons.find((lesson) => lesson.id === "m00-l01");
+check(firstTeachingLesson?.revision === "theory-v1.1", "课号 01 应标记实际教学修订版 theory-v1.1");
+check(firstTeachingLesson?.teachingOrder === "case-first", "课号 01 应使用旅行案例先行的教学顺序");
+
 const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
 check(readme.includes(`v${data.meta.version}`), `README 版本未同步到 v${data.meta.version}`);
 check(readme.includes("51"), "README 未说明 51 课理论主干");
