@@ -898,7 +898,11 @@
           ...(lesson.prerequisites || []),
           ...(lesson.sections || []).flatMap((section) => [section.title, ...section.paragraphs, ...(section.bullets || [])]),
           ...(lesson.misconceptions || []).flatMap((item) => [item.claim, item.correction]),
+          ...(lesson.travelCase
+            ? [lesson.travelCase.title, ...(lesson.travelCase.paragraphs || []), ...(lesson.travelCase.decisionRules || [])]
+            : []),
           ...(lesson.recap || []),
+          ...(lesson.questions || []).flatMap((item) => [item.prompt, item.answer]),
           ...(lesson.sources || []).flatMap((source) => [source.title, source.note, source.kind])
         ].join(" "),
         href: `#/lesson/${lesson.id}`
