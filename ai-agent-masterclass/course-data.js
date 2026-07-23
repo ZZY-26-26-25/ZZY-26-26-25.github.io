@@ -2,24 +2,185 @@ window.CourseData = {
   meta: {
     title: "AI 智能体大师课",
     subtitle: "从 AI 小白到能独立设计、构建、评测和部署智能体",
-    version: "0.2.1",
-    updated: "2026-07-22",
+    version: "0.3.0",
+    updated: "2026-07-23",
     coreLessons: 51,
-    publishedLessons: 2,
+    publishedLessons: 3,
     repository: "https://github.com/ZZY-26-26-25/ZZY-26-26-25.github.io/tree/master/ai-agent-masterclass"
   },
 
   modules: [
-    { id: "m00", order: 0, title: "进入智能体世界", short: "建立地图与边界", lessons: 2, status: "current" },
-    { id: "m01", order: 1, title: "数字工具与 LLM 基础", short: "API、Python、Prompt、结构化输出", lessons: 7, status: "planned" },
-    { id: "m02", order: 2, title: "单智能体与工具调用", short: "Agent Loop、Function Calling、审批", lessons: 6, status: "planned" },
-    { id: "m03", order: 3, title: "资料检索与 RAG", short: "搜索、知识库、引用与检索评测", lessons: 6, status: "planned" },
-    { id: "m04", order: 4, title: "状态与记忆管理", short: "短期、长期、冲突、遗忘与隐私", lessons: 5, status: "planned" },
-    { id: "m05", order: 5, title: "规划、工作流与长任务", short: "任务分解、状态机、恢复与监督", lessons: 5, status: "planned" },
-    { id: "m06", order: 6, title: "多智能体与互操作", short: "Supervisor、Handoff、MCP、A2A", lessons: 5, status: "planned" },
-    { id: "m07", order: 7, title: "评测、可观测性与安全", short: "Evals、Tracing、注入防护、红队", lessons: 6, status: "planned" },
-    { id: "m08", order: 8, title: "产品化与部署", short: "服务、容器、CI/CD、成本与 UX", lessons: 5, status: "planned" },
-    { id: "m09", order: 9, title: "毕业综合项目", short: "需求、实现、评测、部署与答辩", lessons: 4, status: "planned" }
+    {
+      id: "m00",
+      order: 0,
+      title: "进入智能体世界",
+      short: "建立地图、目标与权限边界",
+      lessons: 2,
+      status: "released",
+      outcome: "能区分 LLM、工作流与智能体，并写出可执行的 Agent Charter。",
+      project: "旅行规划智能体 v0：目标、工具、禁区、审批点与成功指标。",
+      outline: [
+        "导学：建立学习系统与 Agent Charter",
+        "AI、机器学习、LLM、工作流与 Agent"
+      ]
+    },
+    {
+      id: "m01",
+      order: 1,
+      title: "数字工具与 LLM 基础",
+      short: "Colab、API、Python、Prompt、结构化输出",
+      lessons: 7,
+      status: "current",
+      outcome: "能在 Colab 与本地环境安全调用模型，稳定获得并验证结构化结果。",
+      project: "结构化旅行助手：把旅行需求变成可校验的 JSON 方案。",
+      outline: [
+        "Colab 与模型 API：完成第一次真实调用",
+        "智能体所需的 Python 与 Notebook 最小基础",
+        "Token、上下文窗口、采样、延迟与费用",
+        "Prompt、消息角色与指令优先级",
+        "JSON Schema、结构化输出与结果验证",
+        "流式输出、超时、限流、重试与并发",
+        "模型选择、基线任务集与成本质量权衡"
+      ]
+    },
+    {
+      id: "m02",
+      order: 2,
+      title: "单智能体与工具调用",
+      short: "Agent Loop、工具契约、执行器与审批",
+      lessons: 6,
+      status: "planned",
+      outcome: "能从零实现一个有终止条件、工具验证、权限边界和人工审批的单智能体。",
+      project: "工具型旅行智能体：查询天气、地图和官方信息，但高风险动作必须暂停审批。",
+      outline: [
+        "从 while 循环实现最小 Agent Loop",
+        "Function Calling 与 JSON Schema 工具契约",
+        "参数校验、工具执行、观察与错误回传",
+        "多工具路由、并行调用与结果合并",
+        "最小权限、幂等性、预算、停止与人工审批",
+        "单智能体旅行规划器 v1：从需求到可执行计划"
+      ]
+    },
+    {
+      id: "m03",
+      order: 3,
+      title: "资料检索与 RAG",
+      short: "搜索、证据、知识库、引用与检索评测",
+      lessons: 6,
+      status: "planned",
+      outcome: "能构建有来源层级、时间戳、可追溯引用和检索评测的研究系统。",
+      project: "目的地研究助手：社交平台找线索，官方与一手来源确认事实。",
+      outline: [
+        "检索问题定义、来源层级与时效性",
+        "查询拆解、搜索策略、去重与交叉核验",
+        "网页解析、正文抽取、快照、元数据与引用",
+        "Embedding、切块、向量检索与上下文组装",
+        "关键词 + 向量混合检索、过滤与重排序",
+        "RAG 评测：召回、忠实度、引用正确性与旅行知识库"
+      ]
+    },
+    {
+      id: "m04",
+      order: 4,
+      title: "状态、上下文与记忆管理",
+      short: "工作状态、长期记忆、冲突、遗忘与隐私",
+      lessons: 5,
+      status: "planned",
+      outcome: "能明确什么进入上下文、什么写入记忆，以及如何更新、冲突处理、遗忘和删除。",
+      project: "可治理旅行偏好记忆：预算、节奏、饮食和摄影偏好可查看、修改与清除。",
+      outline: [
+        "任务状态、上下文与长期记忆不是一回事",
+        "对话窗口、摘要、压缩与工作记忆",
+        "语义、情景、程序性记忆及其存储结构",
+        "记忆写入门、检索、冲突、衰减与遗忘",
+        "隐私、同意、生命周期与个性化旅行助手"
+      ]
+    },
+    {
+      id: "m05",
+      order: 5,
+      title: "规划、工作流与长任务",
+      short: "任务分解、状态机、恢复、重规划与调度",
+      lessons: 5,
+      status: "planned",
+      outcome: "能把长任务做成可暂停、恢复、重试、取消、重规划和人工接管的可靠流程。",
+      project: "多日行程系统：天气、停运、闭园或体力变化时生成并比较 Plan B。",
+      outline: [
+        "目标、约束、任务分解与计划表示",
+        "顺序、分支、循环、DAG 与状态机",
+        "约束求解、反思、重规划与 Plan B",
+        "Checkpoint、重试、补偿、超时、取消与恢复",
+        "事件驱动、定时任务、人在回路与长行程监督"
+      ]
+    },
+    {
+      id: "m06",
+      order: 6,
+      title: "多智能体与互操作",
+      short: "Router、Supervisor、Handoff、MCP 与 A2A",
+      lessons: 5,
+      status: "planned",
+      outcome: "能判断何时需要多智能体，并用清晰协议控制角色、通信、共享状态和失败传播。",
+      project: "旅行规划团队：交通、天气、安全、摄影等专家协作，由总规划器验收。",
+      outline: [
+        "何时需要多智能体，以及它为何经常适得其反",
+        "Router、Supervisor、Handoff、并行与辩论模式",
+        "消息契约、共享状态、黑板与冲突仲裁",
+        "MCP：工具与资源的标准化接入",
+        "A2A、跨智能体协作与旅行专家团队"
+      ]
+    },
+    {
+      id: "m07",
+      order: 7,
+      title: "评测、可观测性与安全",
+      short: "Evals、Tracing、注入防护、红队与事故响应",
+      lessons: 6,
+      status: "planned",
+      outcome: "能以数据和轨迹证明质量，发现回归，并抵抗常见的提示注入、越权和数据泄露。",
+      project: "安全可靠版旅行智能体：离线评测集、轨迹审计、攻击集和发布门禁。",
+      outline: [
+        "从需求建立数据集、指标、Rubric 与基线",
+        "结果、轨迹、工具、RAG、成本和延迟评测",
+        "日志、Trace、指标、复现与根因定位",
+        "威胁建模：提示注入、数据泄露、工具滥用与供应链",
+        "输入输出护栏、沙箱、最小权限、红队与审批",
+        "回归测试、在线监控、灰度发布与事故响应"
+      ]
+    },
+    {
+      id: "m08",
+      order: 8,
+      title: "产品化与部署",
+      short: "服务、容器、CI/CD、可靠性、成本与 UX",
+      lessons: 5,
+      status: "planned",
+      outcome: "能把实验原型变成可部署、可监控、可升级、可控成本且用户信任的产品。",
+      project: "旅行智能体 Web 应用：账号隔离、后台任务、审批界面、监控和费用上限。",
+      outline: [
+        "Web/API、队列、缓存、数据库与后台任务架构",
+        "环境配置、Secret、容器、沙箱与数据隔离",
+        "版本管理、CI/CD、评测门禁与回滚",
+        "延迟、吞吐、缓存、路由、可靠性与成本工程",
+        "人机交互、可解释审批、无障碍、合规与商业指标"
+      ]
+    },
+    {
+      id: "m09",
+      order: 9,
+      title: "毕业综合项目",
+      short: "需求、架构、实现、验收、上线与答辩",
+      lessons: 4,
+      status: "planned",
+      outcome: "独立交付一个有设计证据、评测报告、安全说明、运维手册与真实用户反馈的智能体。",
+      project: "完整旅行规划智能体：从用户访谈到公开演示和付费价值验证。",
+      outline: [
+        "需求冻结、风险分析、架构图、数据与决策记录",
+        "端到端实现、集成测试与失败恢复",
+        "离线评测、红队、用户测试与发布门禁",
+        "部署、演示、运维、商业验证与毕业答辩"
+      ]
+    }
   ],
 
   lessons: [
@@ -71,6 +232,7 @@ window.CourseData = {
         <p>课程会坚持“先原理、后框架”。OpenAI Agents SDK、LangGraph、MCP 等工具会学习，但它们是实现手段，不是知识本身。这样即使某个 API 改版，你掌握的能力也不会过期。</p>
 
         <h2 id="autonomy">第一个重要观念：更自主，不等于更好</h2>
+        <p class="muted">下面的 L0–L4+ 是本课程为了比较风险与控制成本而设计的教学分级，并非行业统一标准或官方认证等级。</p>
         <table class="compare-table">
           <thead><tr><th>等级</th><th>系统能做什么</th><th>适合场景</th></tr></thead>
           <tbody>
@@ -120,6 +282,12 @@ window.CourseData = {
           <div class="assignment-template">我想让智能体帮助我 ______；它可以自主 ______；但在 ______ 之前必须问我。</div>
           <p>把这句话发给我，我们会用它作为后续所有设计的第一条约束。</p>
         </section>
+
+        <h2 id="sources">一手资料与课程依据</h2>
+        <ul class="source-list">
+          <li><a href="https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/" target="_blank" rel="noopener">OpenAI · A practical guide to building AI agents</a><small>智能体构成、工具、指令、护栏，以及从单智能体逐步增加复杂度的工程建议。</small></li>
+          <li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Anthropic · Building effective agents</a><small>工作流与智能体的区分，以及优先采用简单、可组合模式的理由。</small></li>
+        </ul>
       `
     },
     {
@@ -265,6 +433,207 @@ while not 已完成(state):
           <li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Anthropic · Building effective agents</a><small>工作流与智能体的区分，以及从简单可组合模式开始的工程方法。</small></li>
         </ul>
       `
+    },
+    {
+      id: "m01-l00",
+      module: "m01",
+      order: 0,
+      number: "02",
+      title: "第一次真实调用：用 Colab 连接模型 API",
+      shortTitle: "Colab 与模型 API",
+      deck: "从零读懂 HTTP、JSON、Endpoint、API Key 和模型参数，并用不泄露密钥的方式跑通第一个可复用实验。",
+      duration: "90 分钟",
+      level: "零基础 · 实验课",
+      status: "published",
+      updated: "2026-07-23",
+      keywords: ["Google Colab", "Colab", "Jupyter", "Notebook", "API", "HTTP", "JSON", "REST", "Endpoint", "Base URL", "API Key", "Bearer Token", "Secrets", "环境变量", "OpenAI-compatible", "OpenAI 兼容", "Chat Completions", "vLLM", "Python", "模型接口", "免费 API", "开源模型", "开放权重", "限流", "429", "重试", "超时", "旅行规划", "结构化输出"],
+      content: `
+        <section class="objectives">
+          <h2>完成这一课，你应该能</h2>
+          <ul>
+            <li>说清浏览器聊天、模型、API 和模型网关分别是什么。</li>
+            <li>读懂一次模型请求中的 URL、Header、JSON Body 与 JSON Response。</li>
+            <li>在 Google Colab 中用 Secret 保存密钥，并从公开 GitHub Notebook 安全运行代码。</li>
+            <li>接入一个提供 <code>/v1/chat/completions</code> 的兼容接口，同时识别厂商扩展和兼容性差异。</li>
+            <li>根据 HTTP 状态码定位常见错误，并完成一次最小验收。</li>
+          </ul>
+        </section>
+
+        <div class="callout warning">
+          <h3>先处理你提供的接口文档</h3>
+          <p>文档中包含多组明文 Bearer 凭证。公开课程和 Notebook 已全部排除这些值，也不会尝试替你传播或复用。只要一个密钥曾出现在可共享文档、聊天截图或 GitHub 中，就应按“可能泄露”处理：联系接口管理员吊销或轮换，再把新密钥放入 Secret。不要把原文直接提交到公开仓库。</p>
+        </div>
+
+        <h2 id="mental-model">1. 先建立调用链：你到底在连接谁？</h2>
+        <p>在网页里聊天时，网站替你完成了网络请求。写智能体时，你需要让程序自己发出请求。今天先不构建 Agent Loop，只把最底层的“程序 ↔ 模型服务”连接打通。</p>
+        <div class="platform-flow" role="img" aria-label="课程网站、GitHub、Colab 和模型网关之间的关系">
+          <article><span>① 学习</span><strong>GitHub Pages</strong><small>读课程、做小测、保存本机进度；不接触 API Key</small></article>
+          <article><span>② 取代码</span><strong>GitHub Notebook</strong><small>公开、可审查、可版本管理；只含占位符</small></article>
+          <article><span>③ 执行</span><strong>Google Colab</strong><small>在临时 Python 运行时读取你授权的 Secret</small></article>
+          <article><span>④ 推理</span><strong>模型 API / 网关</strong><small>接收 JSON 请求，返回模型输出或错误状态</small></article>
+        </div>
+        <p>这套分工解决了一个关键矛盾：代码应该公开、可复现；密钥必须私有。Colab 可以直接从 GitHub 加载 <code>.ipynb</code>，但代码在与你账号关联的临时虚拟机里执行。运行时会被回收，因此代码和依赖要能从头重跑，结果和重要数据也不能只留在临时磁盘。</p>
+
+        <h2 id="api-anatomy">2. 一次 API 请求的六个零件</h2>
+        <table class="compare-table">
+          <thead><tr><th>零件</th><th>它回答的问题</th><th>本课示例</th><th>常见错误</th></tr></thead>
+          <tbody>
+            <tr><td><button class="term" data-term="base-url">Base URL</button></td><td>服务器在哪里？</td><td><code>https://你的网关域名</code></td><td>多写或少写一个 <code>/v1</code></td></tr>
+            <tr><td><button class="term" data-term="endpoint">Endpoint</button></td><td>调用服务器的哪项能力？</td><td><code>POST /v1/chat/completions</code></td><td>路径过期、方法不对、404/405</td></tr>
+            <tr><td>Header</td><td>这是什么数据、我是谁？</td><td><code>Content-Type</code> 与 <code>Authorization</code></td><td>Bearer 拼写、空格或密钥错误</td></tr>
+            <tr><td><button class="term" data-term="json">JSON Body</button></td><td>我要模型做什么？</td><td><code>model</code>、<code>messages</code>、生成参数</td><td>逗号、引号、字段类型或模型名错误</td></tr>
+            <tr><td>Status Code</td><td>请求在网络层是否成功？</td><td><code>200</code>、<code>401</code>、<code>429</code>、<code>5xx</code></td><td>只看异常文字，不看状态码</td></tr>
+            <tr><td>Response JSON</td><td>模型和服务返回了什么？</td><td>通常从 <code>choices[0].message.content</code> 取文本</td><td>假定所有兼容服务响应完全相同</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-block">
+          <div class="code-label"><span>OpenAI Chat Completions 风格 · 所有值均为占位符</span><button class="copy-code" type="button">复制</button></div>
+          <pre><code>POST https://YOUR_GATEWAY.example/v1/chat/completions
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "model": "YOUR_MODEL_NAME",
+  "messages": [
+    {"role": "system", "content": "你是谨慎的旅行规划助手。"},
+    {"role": "user", "content": "列出制定三日行程前必须确认的5项信息。"}
+  ],
+  "temperature": 0.2,
+  "max_tokens": 500
+}</code></pre>
+        </div>
+        <p><strong>API 是契约，不是魔法。</strong>客户端按约定发送请求，服务端按约定返回结果。HTTP 规定网络消息的语义，JSON 规定结构化数据的文本表示；模型服务再在这两层之上定义字段。</p>
+
+        <h2 id="compatibility">3. “OpenAI 兼容”到底兼容什么？</h2>
+        <p>你提供的接口使用 <code>/v1/chat/completions</code>、Bearer 鉴权、<code>model + messages</code> 请求体，因此可以称为<strong>采用 OpenAI Chat Completions 风格的网关</strong>。vLLM 等推理服务也能提供这类兼容服务器，但“兼容”通常只表示一组常用请求与响应形状相近，不代表所有字段、模型能力、错误格式、工具调用、流式输出或 SDK 行为完全一致。</p>
+        <table class="compare-table">
+          <thead><tr><th>概念</th><th>它证明了什么</th><th>它没有证明什么</th></tr></thead>
+          <tbody>
+            <tr><td>OpenAI-compatible API</td><td>某些端点和字段可按相似方式调用</td><td>不是 OpenAI 官方服务，也不保证 100% 参数兼容</td></tr>
+            <tr><td>可通过 API 访问</td><td>你拥有某种调用入口</td><td>不等于免费、无限额、稳定或允许公开转发</td></tr>
+            <tr><td>开放权重</td><td>模型权重在许可证条件下可获得</td><td>不自动等于完整训练代码和数据均开源</td></tr>
+            <tr><td>量化版本</td><td>权重或计算采用较低精度以节省资源</td><td>不能只凭 w4a8/w8a8 推断实际质量和速度</td></tr>
+          </tbody>
+        </table>
+        <div class="callout idea">
+          <h3>对附件的证据分级</h3>
+          <p><strong>可以确认：</strong>文档声明的 URL 形态、请求示例和模型别名。<strong>需要网关管理员或运行测试确认：</strong>当前可用模型、上下文长度、量化方式、并发实例、限流、免费政策和服务期限。<code>chat_template_kwargs</code> 也是网关/推理框架扩展，不应写进通用客户端的必选字段。</p>
+        </div>
+
+        <h2 id="secret">4. 密钥是权限，不是普通字符串</h2>
+        <p><button class="term" data-term="api-key">API Key</button> 往往代表配额、费用和访问权限。它不应该出现在公开 Notebook、网页前端、Git 历史、截图、报错全文或共享日志里。GitHub Pages 的 JavaScript 会下载到每个访问者浏览器，因此<strong>绝不能把长期密钥放在本站前端</strong>。</p>
+        <div class="do-dont-grid">
+          <article class="practice-card good"><strong>应该这样做</strong><ul><li>在 Colab 左侧“钥匙”面板创建 <code>MODEL_API_KEY</code>。</li><li>只授权当前 Notebook 读取该 Secret。</li><li>设置用量上限，按用途拆分密钥并定期轮换。</li><li>日志只记录请求 ID、耗时、状态码和脱敏信息。</li></ul></article>
+          <article class="practice-card bad"><strong>不要这样做</strong><ul><li>把密钥粘到代码单元、URL 或 GitHub Issue。</li><li>因为接口“免费”就共享同一个永久密钥。</li><li>打印完整 Header、环境变量或异常请求对象。</li><li>把 Notebook 输出连同凭证公开分享。</li></ul></article>
+        </div>
+
+        <h2 id="lab">5. 实验：在 Colab 完成第一次调用</h2>
+        <section class="lab-card">
+          <div>
+            <span class="eyebrow">LAB 01 · 可直接运行</span>
+            <h3>通用模型 API 客户端</h3>
+            <p>Notebook 不内置供应商、域名、模型名或密钥。你只需填写 Base URL 与 Model，并在 Colab Secrets 中保存 <code>MODEL_API_KEY</code>。没有密钥时也能运行 Mock 模式，先理解数据流。</p>
+            <ul>
+              <li>自动规范化完整 Endpoint，避免重复 <code>/v1</code>。</li>
+              <li>请求超时、指数退避、429/5xx 有限重试。</li>
+              <li>兼容常见 <code>choices → message → content</code> 响应，并在不兼容时显示可诊断错误。</li>
+              <li>内置旅行规划提示、结构检查、失败练习和通关清单。</li>
+            </ul>
+          </div>
+          <div class="lab-actions">
+            <a class="button" href="https://colab.research.google.com/github/ZZY-26-26-25/ZZY-26-26-25.github.io/blob/master/ai-agent-masterclass/labs/01-first-api-call.ipynb" target="_blank" rel="noopener">在 Colab 打开实验 ↗</a>
+            <a class="button ghost" href="https://github.com/ZZY-26-26-25/ZZY-26-26-25.github.io/blob/master/ai-agent-masterclass/labs/01-first-api-call.ipynb" target="_blank" rel="noopener">查看 Notebook 源码</a>
+          </div>
+        </section>
+        <ol class="checklist">
+          <li><strong>复制一份：</strong>在 Colab 中选择“文件 → 在云端硬盘中保存副本”，公开原版以后更新不会覆盖你的实验。</li>
+          <li><strong>先跑 Mock：</strong>从上到下运行，确认每个单元的输入与输出。</li>
+          <li><strong>设置三个值：</strong><code>BASE_URL</code>、<code>MODEL</code>、Colab Secret <code>MODEL_API_KEY</code>。</li>
+          <li><strong>发最小请求：</strong>先只用 <code>model</code>、<code>messages</code> 和很小的 <code>max_tokens</code>，不要一开始叠加思考、工具或长上下文参数。</li>
+          <li><strong>保存证据：</strong>只记录时间、脱敏后的服务名、模型别名、状态码、耗时和输出；绝不记录密钥。</li>
+        </ol>
+
+        <h2 id="parameters">6. 先只掌握这几个参数</h2>
+        <table class="compare-table">
+          <thead><tr><th>参数</th><th>作用</th><th>初学建议</th></tr></thead>
+          <tbody>
+            <tr><td><code>model</code></td><td>选择网关暴露的模型别名</td><td>精确复制管理员给出的 ID；显示名不一定能调用</td></tr>
+            <tr><td><code>messages</code></td><td>按角色传入指令、用户输入和历史</td><td>先用 system + user；后续再讲完整指令层级</td></tr>
+            <tr><td><code>max_tokens</code></td><td>限制本次最多生成多少 Token</td><td>先设 300–800，避免失败请求消耗过多资源</td></tr>
+            <tr><td><code>temperature</code></td><td>影响采样随机性，具体支持依模型而异</td><td>信息提取与规划草案先用较低值；不要把它当“准确度旋钮”</td></tr>
+            <tr><td><code>top_p</code></td><td>另一种控制候选 Token 范围的采样参数</td><td>初学阶段不要同时频繁调 temperature 与 top_p</td></tr>
+            <tr><td><code>stream</code></td><td>是否边生成边接收</td><td>第一课先关闭；流式协议和中断处理后续单讲</td></tr>
+          </tbody>
+        </table>
+        <p>不同模型和网关支持的参数可能不同。遇到 400/422 时，先删掉所有可选字段，只保留最小请求，再逐个加回。这比盲目换模型更容易定位问题。</p>
+
+        <h2 id="errors">7. 学会读错误，才算真正跑通</h2>
+        <section class="interactive-panel">
+          <h3>互动：先找哪一层？</h3>
+          <div class="scenario" data-correct="auth" data-correct-feedback="正确。401 首先定位认证层：Secret 是否存在、Header 是否为 Bearer、密钥是否有效且有权限。" data-wrong-feedback="先按状态码定位网络层。401 与 Prompt、记忆或 RAG 无关。">
+            <div><strong>A. 返回 401，正文提示 credentials invalid</strong><p>请求已经到达服务器，但身份凭证无效或缺失。</p></div>
+            <div class="choice-buttons"><button class="choice-button" data-choice="prompt">改 Prompt</button><button class="choice-button" data-choice="auth">查 Secret/Header</button><button class="choice-button" data-choice="memory">加记忆</button></div>
+          </div>
+          <div class="scenario" data-correct="route" data-correct-feedback="正确。404 表示目标资源未找到，应先检查 Base URL、/v1 和 Endpoint 拼接。" data-wrong-feedback="服务器路径都没有命中时，生成参数和 RAG 还没有机会生效。">
+            <div><strong>B. 返回 404，且域名能访问</strong><p>服务器存在，但目标资源路径不存在。</p></div>
+            <div class="choice-buttons"><button class="choice-button" data-choice="route">查 Base URL/Endpoint</button><button class="choice-button" data-choice="temperature">调 temperature</button><button class="choice-button" data-choice="rag">加向量库</button></div>
+          </div>
+          <div class="scenario" data-correct="backoff" data-correct-feedback="正确。只对暂时性错误做有限指数退避，并设置总时长、次数和取消条件。" data-wrong-feedback="无限重试和共享密钥都会放大故障与安全风险。">
+            <div><strong>C. 返回 429 或 503</strong><p>可能是限流、过载或维护；无限立即重试会让情况更糟。</p></div>
+            <div class="choice-buttons"><button class="choice-button" data-choice="backoff">有限指数退避</button><button class="choice-button" data-choice="leak">换成公开密钥</button><button class="choice-button" data-choice="loop">无限循环</button></div>
+          </div>
+        </section>
+        <table class="compare-table">
+          <thead><tr><th>现象</th><th>优先检查</th><th>不要做</th></tr></thead>
+          <tbody>
+            <tr><td>DNS/连接失败</td><td>域名、网络可达性、VPN/内网限制、TLS</td><td>把密钥贴到论坛求助</td></tr>
+            <tr><td>400 / 422</td><td>JSON、字段类型、模型名和不兼容参数</td><td>无脑重试相同请求</td></tr>
+            <tr><td>401 / 403</td><td>Secret、Bearer Header、权限和有效期</td><td>在输出中打印完整 Header</td></tr>
+            <tr><td>404 / 405</td><td>Base URL、Endpoint 和 HTTP 方法</td><td>先改 Prompt</td></tr>
+            <tr><td>429</td><td>配额、并发、速率限制与 Retry-After</td><td>无限并发或毫无等待地重试</td></tr>
+            <tr><td>500 / 502 / 503 / 504</td><td>服务端、网关、过载和上游超时</td><td>认定是 Python 语法错误</td></tr>
+            <tr><td>200 但内容不合格</td><td>任务定义、Prompt、模型能力与结果验证</td><td>把“HTTP 成功”当成“业务正确”</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="acceptance">8. 本课验收：不是出现一段文字就结束</h2>
+        <p>真正的“跑通”至少有四层：</p>
+        <ol>
+          <li><strong>连接成功：</strong>能得到 2xx 响应，并记录耗时。</li>
+          <li><strong>解析成功：</strong>程序能从 JSON 中取出内容，缺字段时给出明确错误。</li>
+          <li><strong>任务成功：</strong>输出确实列出制定三日行程前需要确认的信息，而不是泛泛介绍旅游。</li>
+          <li><strong>安全成功：</strong>Notebook、输出、Git 历史和截图中都没有密钥。</li>
+        </ol>
+        <section class="assignment">
+          <h3>通关任务：提交一张“脱敏运行卡”</h3>
+          <div class="assignment-template">运行时间：YYYY-MM-DD HH:MM（注明时区）
+运行模式：Mock / 真实接口
+服务：仅写公开名称或“机构网关”，不要写私有地址
+模型别名：________
+HTTP 状态：________
+耗时：________ 秒
+输出是否包含 5 项待确认信息：是 / 否
+我遇到的错误及定位层：________
+密钥检查：代码、输出、截图中均未出现密钥（是 / 否）</div>
+          <p>把这张卡和模型给出的 5 项信息发给我。不要发送 API Key、完整 Authorization Header 或含密钥的截图；我会根据运行证据教你做第一次调试和改进。</p>
+        </section>
+
+        <h2 id="quiz">随堂小测</h2>
+        <div class="quiz" data-quiz="q-m01-l00"></div>
+
+        <h2 id="sources">一手资料与核验边界</h2>
+        <ul class="source-list">
+          <li><a href="https://research.google.com/colaboratory/faq.html" target="_blank" rel="noopener">Google Colab FAQ</a><small>Notebook 可从 GitHub 加载、代码在临时虚拟机执行、资源与运行时不是永久或无限的。</small></li>
+          <li><a href="https://colab.research.google.com/github/googlecolab/colabtools/blob/main/notebooks/Secrets.ipynb" target="_blank" rel="noopener">Google Colab · Secrets 官方示例 Notebook</a><small>Colab Secret 的界面和 <code>google.colab.userdata</code> 读取方式；界面可能随产品更新。</small></li>
+          <li><a href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">IETF RFC 9110 · HTTP Semantics</a><small>HTTP 方法、响应和状态码的规范来源。</small></li>
+          <li><a href="https://datatracker.ietf.org/doc/html/rfc8259" target="_blank" rel="noopener">IETF RFC 8259 · JSON</a><small>JSON 对象、数组、字符串、数值与语法的标准定义。</small></li>
+          <li><a href="https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create" target="_blank" rel="noopener">OpenAI · Create chat completion</a><small>本课所称 Chat Completions 风格的消息、鉴权和请求形状参考；第三方网关不等于 OpenAI 官方服务。</small></li>
+          <li><a href="https://docs.vllm.ai/en/stable/serving/online_serving/openai_compatible_server/" target="_blank" rel="noopener">vLLM · OpenAI-Compatible Server</a><small>开放模型推理服务如何暴露兼容接口，以及兼容范围依服务实现而异。</small></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP · Secrets Management Cheat Sheet</a><small>凭证的生命周期、最小权限、轮换、审计和泄露响应。</small></li>
+        </ul>
+        <p class="source-note"><strong>课程核验说明：</strong>附件中的具体模型在线状态、上下文长度、量化、实例数量、限流和“免费”政策没有可引用的公开权威页面，因此本课不把它们写成事实。真实使用前应向接口管理员确认服务条款，并以最小请求和可审计结果验证。</p>
+      `
     }
   ],
 
@@ -326,6 +695,47 @@ while not 已完成(state):
           explanation: "系统应依赖可检查的动作、观察、结果和验证，不应把不可控的内部思维当接口。"
         }
       ]
+    },
+    "q-m01-l00": {
+      passingScore: 80,
+      questions: [
+        {
+          prompt: "为什么不能把 API Key 直接写进 GitHub Pages 的 JavaScript？",
+          options: ["JavaScript 不能发送 HTTP", "网页代码会下载到访问者浏览器，密钥可以被读取", "API Key 只能包含数字", "GitHub Pages 不支持 JSON"],
+          answer: 1,
+          explanation: "前端代码和网络请求对访问者可见；长期服务端密钥必须放在受控运行环境或 Secret 管理系统中。"
+        },
+        {
+          prompt: "一个第三方服务声明“OpenAI-compatible”，最稳妥的理解是什么？",
+          options: ["它就是 OpenAI 官方服务", "它一定支持 OpenAI 的所有端点和参数", "它实现了部分相似接口，具体兼容范围仍需查文档和测试", "它的模型一定完全开源且永久免费"],
+          answer: 2,
+          explanation: "兼容通常针对部分请求/响应形状；参数、工具、流式、错误格式和模型能力都可能不同。"
+        },
+        {
+          prompt: "请求返回 401 时，第一优先级应该检查什么？",
+          options: ["Prompt 写得够不够长", "API Key、Bearer Header 与权限", "向量数据库召回率", "temperature 是否太低"],
+          answer: 1,
+          explanation: "RFC 9110 中 401 表示缺少有效认证凭证；先检查鉴权层，而不是修改模型内容。"
+        },
+        {
+          prompt: "遇到 429 或临时 5xx，合理的客户端策略是什么？",
+          options: ["无限立即重试", "公开密钥让别人帮忙测试", "有限次数的指数退避，并尊重 Retry-After", "把 max_tokens 调到最大"],
+          answer: 2,
+          explanation: "有限退避能减少雪崩；重试还应有次数、总时长、幂等性和取消边界。"
+        },
+        {
+          prompt: "HTTP 返回 200 能证明什么？",
+          options: ["只能证明请求在协议层成功处理，业务结果仍需验证", "证明模型输出事实全部正确", "证明行程一定能执行", "证明密钥没有泄露"],
+          answer: 0,
+          explanation: "网络成功、响应可解析、任务完成、事实正确和安全合规是不同验收层。"
+        },
+        {
+          prompt: "关于附件中写出的模型上下文长度、量化和免费政策，课程为什么没有直接当作事实发布？",
+          options: ["这些概念没有意义", "任何内部文档都一定是假的", "缺少可引用的权威公开来源和独立运行验证，需要管理员与测试确认", "因为模型接口不能使用 JSON"],
+          answer: 2,
+          explanation: "来源分级与可复现实验是可靠课程的基础；无法独立核验的声明必须明确标注边界。"
+        }
+      ]
     }
   },
 
@@ -343,10 +753,25 @@ while not 已完成(state):
     { id: "rag", zh: "检索增强生成", en: "Retrieval-Augmented Generation · RAG", definition: "先从外部知识源检索相关证据，再把证据提供给生成模型的系统方法。" },
     { id: "memory", zh: "智能体记忆", en: "Agent Memory", definition: "经过选择、结构化和治理后，可供后续任务读取的状态、事件、事实或偏好；不是把所有对话无限堆叠。" },
     { id: "mcp", zh: "模型上下文协议", en: "Model Context Protocol · MCP", definition: "让 AI 应用以标准方式发现和使用外部工具、资源与提示模板的开放协议。" },
-    { id: "eval", zh: "评测", en: "Evaluation · Eval", definition: "用任务集、指标和判分标准系统地测量结果质量、过程、成本、延迟与风险。" }
+    { id: "eval", zh: "评测", en: "Evaluation · Eval", definition: "用任务集、指标和判分标准系统地测量结果质量、过程、成本、延迟与风险。" },
+    { id: "api", zh: "应用程序接口", en: "Application Programming Interface · API", definition: "软件组件之间约定的调用契约，规定可以请求什么、怎样请求以及怎样返回结果。" },
+    { id: "http", zh: "超文本传输协议", en: "Hypertext Transfer Protocol · HTTP", definition: "Web 客户端与服务器交换请求和响应的应用层协议；方法、Header、状态码和内容共同表达语义。" },
+    { id: "json", zh: "JSON", en: "JavaScript Object Notation · JSON", definition: "用对象、数组、字符串、数值、布尔值和 null 表示结构化数据的文本格式。" },
+    { id: "base-url", zh: "基础地址", en: "Base URL", definition: "一组 API 端点共享的服务器地址前缀；客户端在其后拼接具体资源路径。" },
+    { id: "endpoint", zh: "接口端点", en: "API Endpoint", definition: "由 HTTP 方法与 URL 路径共同确定的一项具体 API 能力，例如 POST /v1/chat/completions。" },
+    { id: "api-key", zh: "API 密钥", en: "API Key / Bearer Token", definition: "用于识别调用方并授予配额或权限的凭证；必须按 Secret 管理，泄露后应立即撤销或轮换。" },
+    { id: "notebook", zh: "计算笔记本", en: "Jupyter Notebook", definition: "把说明、代码、输出和实验记录组织在可逐单元执行的 .ipynb 文档中。" },
+    { id: "rate-limit", zh: "速率限制", en: "Rate Limit", definition: "服务在一定时间、并发或配额范围内允许的请求量限制；超限常见状态码为 429。" },
+    { id: "openai-compatible", zh: "OpenAI 风格兼容接口", en: "OpenAI-Compatible API", definition: "第三方服务实现了部分与 OpenAI API 相似的端点和数据形状；不代表官方服务或完整兼容。" }
   ],
 
   updates: [
+    {
+      date: "2026-07-23",
+      version: "v0.3.0",
+      title: "发布 Colab 模型 API 实验与完整课程细目",
+      description: "新增第 2 课、可直接运行的供应商无关 Colab Notebook、密钥安全与接口兼容性审计；把 10 模块 51 课逐课展开，并为每个模块补充能力目标和阶段作品。"
+    },
     {
       date: "2026-07-22",
       version: "v0.2.1",
