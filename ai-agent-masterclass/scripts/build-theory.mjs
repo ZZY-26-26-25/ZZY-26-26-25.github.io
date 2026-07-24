@@ -7,7 +7,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(scriptDir, "..");
 const contentDir = path.join(siteRoot, "content");
 const outputPath = path.join(siteRoot, "theory-lessons.js");
-const updated = "2026-07-23";
+const updated = "2026-07-24";
 
 const expectedCounts = {
   m00: 2,
@@ -24,7 +24,18 @@ const expectedCounts = {
 
 const TEXTBOOK_MINIMUM_CHARACTERS = {
   "m00-l00": 12000,
-  "m00-l01": 16000
+  "m00-l01": 16000,
+  "m01-l00": 24000
+};
+const TEXTBOOK_COMPONENT_MINIMUMS = {
+  "m01-l00": {
+    sections: 15,
+    definitions: 35,
+    tables: 10,
+    examples: 10,
+    checkpoints: 15,
+    sources: 25
+  }
 };
 const TEXTBOOK_IDS = new Set(Object.keys(TEXTBOOK_MINIMUM_CHARACTERS));
 
@@ -91,17 +102,38 @@ const lessons = contentFiles.flatMap((name) => {
   return list;
 });
 const rawLessonsById = new Map(lessons.map((lesson) => [lesson.id, lesson]));
-const reviewManifestPath = path.join(contentDir, "reviews", "m00-textbook-v1.json");
-if (!fs.existsSync(reviewManifestPath)) fail("缺少 M00 教材独立审校清单");
-const reviewManifestSource = fs.readFileSync(reviewManifestPath, "utf8");
-const reviewManifest = JSON.parse(reviewManifestSource);
-const reviewFingerprint = crypto.createHash("sha256").update(reviewManifestSource).digest("hex");
-const reviewedIds = new Set(reviewManifest.reviewScope || []);
+const reviewDir = path.join(contentDir, "reviews");
+if (!fs.existsSync(reviewDir)) fail("缺少教材独立审校清单目录");
+const reviewFiles = fs.readdirSync(reviewDir)
+  .filter((name) => name.endsWith(".json"))
+  .sort();
+if (!reviewFiles.length) fail("缺少教材独立审校清单");
+
+const reviewSources = reviewFiles.map((name) => ({
+  name,
+  source: fs.readFileSync(path.join(reviewDir, name), "utf8")
+}));
+const reviewFingerprint = crypto.createHash("sha256")
+  .update(reviewSources.map(({ name, source }) => `${name}\0${source}`).join("\0"))
+  .digest("hex");
+const reviewedLessonHashes = new Map();
+for (const { name, source } of reviewSources) {
+  const manifest = JSON.parse(source);
+  for (const lessonId of manifest.reviewScope || []) {
+    if (reviewedLessonHashes.has(lessonId)) {
+      fail(`精修课 ${lessonId} 在多个审校清单中重复出现：${name}`);
+    }
+    const lessonHash = manifest.lessonHashes?.[lessonId];
+    if (!lessonHash) fail(`审校清单 ${name} 缺少 ${lessonId} 的内容指纹`);
+    reviewedLessonHashes.set(lessonId, lessonHash);
+  }
+}
+const reviewedIds = new Set(reviewedLessonHashes.keys());
 if (
   reviewedIds.size !== TEXTBOOK_IDS.size ||
   [...TEXTBOOK_IDS].some((lessonId) => !reviewedIds.has(lessonId))
 ) {
-  fail("M00 教材审校范围与本版本精修课不一致");
+  fail("教材审校范围与本版本精修课不一致");
 }
 
 const normalized = lessons
@@ -311,6 +343,25 @@ for (const lesson of normalized) {
     if (tableCount < 2) fail(`精修课 ${lesson.id} 的对比表少于 2 张`);
     if (exampleCount < 3) fail(`精修课 ${lesson.id} 的推演案例少于 3 个`);
     if (checkpointCount < 5) fail(`精修课 ${lesson.id} 的章中检查点少于 5 个`);
+    const componentMinimums = TEXTBOOK_COMPONENT_MINIMUMS[lesson.id];
+    if (componentMinimums) {
+      const actualComponents = {
+        sections: lesson.sections.length,
+        definitions: definitionCount,
+        tables: tableCount,
+        examples: exampleCount,
+        checkpoints: checkpointCount,
+        sources: lesson.sources.length
+      };
+      Object.entries(componentMinimums).forEach(([component, minimum]) => {
+        if (actualComponents[component] < minimum) {
+          fail(
+            `精修课 ${lesson.id} 的 ${component} 未达到本课独立审校最低值：` +
+            `${actualComponents[component]} < ${minimum}`
+          );
+        }
+      });
+    }
     const unusedSourceIds = [...sourceIds].filter((sourceId) => !usedSourceIds.has(sourceId));
     if (unusedSourceIds.length) {
       fail(`精修课 ${lesson.id} 存在未被任何章节引用的来源：${unusedSourceIds.join("、")}`);
@@ -321,7 +372,7 @@ for (const lesson of normalized) {
       .createHash("sha256")
       .update(JSON.stringify(rawLesson))
       .digest("hex")}`;
-    if (reviewManifest.lessonHashes?.[lesson.id] !== actualReviewHash) {
+    if (reviewedLessonHashes.get(lesson.id) !== actualReviewHash) {
       fail(`精修课 ${lesson.id} 已在审校后发生变化，请重新独立审校并更新内容指纹`);
     }
   }
