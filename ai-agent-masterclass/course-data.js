@@ -113,22 +113,22 @@
     meta: {
       title: "AI 智能体大师课",
       subtitle: "从 AI 小白到能独立理解、设计、构建、评测和运营智能体",
-      version: "0.5.0",
-      updated: "2026-07-23",
+      version: "0.5.1",
+      updated: "2026-07-24",
       coreLessons: 51,
       publishedLessons: 51,
       textbookLessons: lessons.filter((lesson) => lesson.contentStatus === "textbook").length,
-      phase: "unit-by-unit-textbook",
+      phase: "lesson-by-lesson-textbook",
       repository: "https://github.com/ZZY-26-26-25/ZZY-26-26-25.github.io/tree/master/ai-agent-masterclass"
     },
 
     methodology: {
-      version: "2.0",
-      title: "按单元把理论初稿精修成完整教材",
-      summary: "51 课理论初稿继续保持完整路线，但不再把“页面可打开”称为教材完成。课程从 M00 开始逐单元扩写、逐节引证和交叉审校；只有通过硬性质量门禁的课程才标记为“教材精修完成”。",
+      version: "2.1",
+      title: "一次只把一节理论初稿精修成完整教材",
+      summary: "51 课理论初稿继续保持完整路线，但不再把“页面可打开”称为教材完成。M00 已完成两课精修；从 M01 开始改为一课一版，逐章扩写、逐条引证、独立审校与实际网页验收。只有通过硬性质量门禁的课程才标记为“教材精修完成”。",
       rationale: [
         "一次性给 51 课都放入少量文字，可以建立知识地图，却不足以让零基础学习者独立掌握。现在明确区分“理论初稿”和“教材精修”，避免完成度数字掩盖内容深度。",
-        "教材精修不是简单拉长文字。每节必须补齐定义、机制、边界、对比、推演案例、章中检查点和逐节来源，并接受另一条审校线检查术语、先修关系与来源范围。",
+        "教材精修不是简单拉长文字。每节必须补齐定义、机制、边界、对比、推演案例、章中检查点和逐节来源，并接受独立审校线检查术语、先修关系、来源范围与零基础可读性。",
         "实践仍然暂缓。工具可以很快变化，但问题定义、系统边界、因果机制、风险控制和证据标准更稳定；等相应理论课达到教材标准后，再接入可替换的 LAB。"
       ],
       questions: [
@@ -149,7 +149,7 @@
       ],
       sourceBoundary: "厂商宣传、排行榜、社交媒体和二手教程只能作为线索，不能单独支撑能力、价格、安全或效果声明。版本、价格、法律和产品能力属于时变信息，必须重新核验。",
       deferred: [
-        "不为了进度数字同时扩写多个单元；每轮只把一个单元做到可独立自学。",
+        "不为了进度数字同时扩写多课；每轮只把一节课做到可独立自学，再进入下一节。",
         "不新增需要写代码或安装依赖的核心课任务。",
         "不继续扩展 Colab、免费 API 或框架教程。",
         "不把某个模型、SDK、排行榜或供应商变成课程主线。",
@@ -164,7 +164,7 @@
         "高级检索：GraphRAG、知识图谱、多模态检索和增量索引。",
         "按部署地区展开的隐私、消费者权益、平台条款、旅游和支付合规。"
       ],
-      practiceReturn: "相应单元通过教材精修门禁后，再逐课加入手工模拟、最小实验、故障注入、结果评测和旅行智能体增量。GitHub 网站承担教材主线，Colab 等平台只承担可替换的实验环境。"
+      practiceReturn: "相应理论课通过教材精修门禁后，再逐课加入手工模拟、最小实验、故障注入、结果评测和旅行智能体增量。GitHub 网站承担教材主线，Colab 等平台只承担可替换的实验环境。"
     },
 
     modules,
@@ -185,6 +185,19 @@
       { id: "workflow", zh: "工作流", en: "Workflow", definition: "执行路径主要由程序预先规定的多步骤流程；模型可以参与节点，但不自由决定整个控制流。" },
       { id: "agent-loop", zh: "智能体循环", en: "Agent Loop", definition: "读取目标与状态、选择动作、执行、观察、更新和判断继续或结束的受控循环。" },
       { id: "agent-charter", zh: "智能体契约", en: "Agent Charter", definition: "本课程用于记录目标、范围、工具、禁止项、审批点、数据规则、停止条件和成功指标的设计文档。" },
+      { id: "notebook", zh: "计算型笔记本", en: "Computational Notebook", definition: "把说明文字、代码单元、元数据和可选输出组织在同一文档中的文件与交互形式；文档本身不等于正在运行的执行进程。" },
+      { id: "kernel", zh: "内核进程", en: "Kernel", definition: "接收前端执行请求、运行特定语言代码并在进程内维护当前变量状态的独立进程；重启后原内存状态通常消失。" },
+      { id: "runtime", zh: "运行时", en: "Runtime", definition: "一次执行会话实际使用的计算环境，包括进程、解释器、内存、文件系统、已安装依赖、硬件与权限等。" },
+      { id: "working-directory", zh: "当前工作目录", en: "Current Working Directory", definition: "程序解析相对路径时采用的起点；同一个相对路径在不同工作目录下可能指向不同文件。" },
+      { id: "virtual-environment", zh: "Python 虚拟环境", en: "Python Virtual Environment", definition: "为一个项目隔离特定 Python 解释器入口和第三方包集合的目录环境，用于减少项目之间的版本冲突。" },
+      { id: "dependency", zh: "依赖", en: "Dependency", definition: "当前程序运行、构建或测试所需要的其他软件包、运行时或外部条件；依赖还可能继续依赖其他组件。" },
+      { id: "reproducibility", zh: "可复现性", en: "Reproducibility", definition: "他人在明确的代码、数据、环境、配置、执行顺序和外部条件下，能够重新得到可比较结果的能力。" },
+      { id: "git-working-tree", zh: "Git 工作区", en: "Git Working Tree", definition: "从某个版本检出、供人直接查看和修改的项目文件；修改工作区不会自动形成提交。" },
+      { id: "git-index", zh: "Git 暂存区", en: "Git Index / Staging Area", definition: "记录下一次提交准备包含哪些文件版本的中间状态；它允许从工作区修改中有选择地组成提交。" },
+      { id: "git-commit", zh: "Git 提交", en: "Git Commit", definition: "保存在本地 Git 对象库中的项目快照及其父提交、作者和说明等元数据；提交不等于已经推送到远程平台。" },
+      { id: "repository", zh: "仓库", en: "Repository", definition: "保存项目对象、历史与引用的版本库；本地 Git 仓库和 GitHub 上的远程托管仓库是可以同步但彼此独立的副本。" },
+      { id: "secret", zh: "秘密凭证", en: "Secret", definition: "一旦泄露就可能授予访问能力或造成安全影响的值，例如 API Key、访问令牌和私钥；变量名不是 Secret，真实值才是。" },
+      { id: "environment-variable", zh: "环境变量", en: "Environment Variable", definition: "由运行环境向进程提供的名称—值配置机制；它可用于运行时注入配置，但本身不是保险箱或完整的秘密管理系统。" },
       { id: "token", zh: "Token", en: "Token", definition: "模型处理序列时使用的离散单位；它不总等于一个汉字、音节或完整英文单词。" },
       { id: "embedding", zh: "向量表示", en: "Embedding", definition: "把离散对象映射为连续向量，使某些关系能够通过几何或统计运算处理。" },
       { id: "transformer", zh: "Transformer", en: "Transformer", definition: "以注意力机制为核心构件的神经网络架构家族，是许多当代主流 LLM 的基础。" },
@@ -242,6 +255,12 @@
     ],
 
     updates: [
+      {
+        date: "2026-07-24",
+        version: "v0.5.1",
+        title: "改为一课一版并精修数字环境基础",
+        description: "课程建设从逐单元推进进一步收敛为逐课推进；本版只精修 m01-l00，系统讲清浏览器、Notebook、Kernel、运行时、文件与路径、Python 环境与依赖、Git/GitHub、Secret 生命周期和泄露处置，其余 48 课继续保持理论初稿。"
+      },
       {
         date: "2026-07-23",
         version: "v0.5.0",
