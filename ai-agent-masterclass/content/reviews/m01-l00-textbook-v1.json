@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "unit": "m01",
+  "lesson": "m01-l00",
+  "edition": "textbook-v1",
+  "reviewedAt": "2026-07-24",
+  "reviewScope": [
+    "m01-l00"
+  ],
+  "reviewMethod": [
+    "独立作者线以零基础学习者为对象完成 15 章教材稿，并按浏览器、Notebook、Kernel、运行时、Python 环境、文件、Git 与 Secret 的因果链组织内容。",
+    "独立来源线逐条核验 Jupyter、Colab、Python、PyPA、pip、Git、GitHub、IETF、OWASP 与 NIST 的一手资料，检查 31 个来源、63 次逐节引用、时变事实和不支持边界。",
+    "独立教学线以陌生迁移题攻击稿件，退回并复核六种状态、HEAD—index—工作区、依赖声明与锁定、Jupyter 参考架构与 Colab 实现边界等四个硬阻断。",
+    "主编合并后再次修正 Notebook 输出不能作为真实执行溯源、静态前端 Secret、环境变量、Git 历史和紧急轮换时序，并由作者与来源审校线分别给出最终 PASS。"
+  ],
+  "lessonHashes": {
+    "m01-l00": "sha256-5a83a5d9dcd3fa5d8dc651abac8bb5bd0a7aba6b560948c89de58f2c3cd6db9e"
+  }
+}
