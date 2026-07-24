@@ -400,8 +400,8 @@
       <article class="page page-wide hero">
         <div class="hero-grid">
           <section>
-            <div class="eyebrow">逐单元教材精修 · 免费开放 · 来源可追溯</div>
-            <h1>不赶着把课标成完成，<br />先把每一单元<em>真正写透</em></h1>
+            <div class="eyebrow">一课一版教材精修 · 免费开放 · 来源可追溯</div>
+            <h1>不赶着把课标成完成，<br />先把每一课<em>真正写透</em></h1>
             <p class="lead">用“旅行规划智能体”贯穿 10 个模块、51 节课程。全部课程均保留可阅读的理论初稿，但只有经过扩写、逐节引证与交叉审校的课程才标记为“教材精修完成”；实践将在理论教材稳定后逐课接回。</p>
             <div class="hero-actions">
               ${primaryAction}
@@ -424,7 +424,7 @@
         </div>
 
         <section class="section">
-          <div class="section-heading"><div><span class="eyebrow">单元完稿制</span><h2>一次完成一个可独立自学的单元</h2></div><p>理论初稿用于保留全局路线；教材精修版才要求完整定义、机制、对比表、推演案例、章中检查点和逐节来源。实践暂不扩张，避免工具反过来绑架课程结构。</p></div>
+          <div class="section-heading"><div><span class="eyebrow">一课一版</span><h2>一次只完成一节可独立自学的课</h2></div><p>理论初稿用于保留全局路线；教材精修版才要求完整定义、机制、对比表、推演案例、章中检查点和逐节来源。当前一课完成全部写作、审校、构建与网页验收后，才进入下一课。</p></div>
           <div class="cards-grid">
             <article class="card"><span class="card-number">机制</span><h3>从因果关系理解原理</h3><p>不把定义换一种说法重复，而是讲清输入、处理、状态变化与输出之间为什么这样连接。</p></article>
             <article class="card"><span class="card-number">边界</span><h3>知道它不能保证什么</h3><p>区分能力与承诺、工具与权限、上下文与记忆、流畅与真实，主动标出失败模式。</p></article>
@@ -476,8 +476,8 @@
       <article class="page page-wide">
         <header class="lesson-header">
           <div class="eyebrow">Mastery Roadmap · v${data.meta.version}</div>
-          <h1>51 课完整路线：按单元逐步写成教材</h1>
-          <p class="lesson-deck">10 个模块按知识依赖展开。理论初稿保持全局不断线；教材精修按单元推进，达到完整篇幅、丰富教材组件、逐节引证和交叉审校后才更新状态。后续 LAB 仍关联原课号，不改变知识顺序。</p>
+          <h1>51 课完整路线：按一课一版逐步写成教材</h1>
+          <p class="lesson-deck">10 个模块按知识依赖展开。理论初稿保持全局不断线；教材精修逐课推进，完成机制解释、教材组件、逐节引证、独立审校和网页验收后才更新状态。后续 LAB 仍关联原课号，不改变知识顺序。</p>
         </header>
 
         <section class="section-heading"><div><span class="eyebrow">学习阶段</span><h2>10 个模块，一条依赖链</h2></div><p>初学者建议按顺序学习；已有基础的读者可以跳转，但应先检查每课列出的先修知识。</p></section>
@@ -879,7 +879,7 @@
         <span class="source-kind">${contentLabel} · ${escapeHTML(lesson.revision || "v1")}</span>
         <p>${lesson.contentStatus === "textbook"
           ? "本课已通过教材篇幅、结构、逐节来源与交叉审校门禁；不要求写代码或调用平台，后续 LAB 会直接关联本课。"
-          : "本课目前是保持知识路线不断线的理论初稿，尚未达到教材精修标准；内容可先阅读，后续会按单元扩写并重新审校。"}</p>
+          : "本课目前是保持知识路线不断线的理论初稿，尚未达到教材精修标准；内容可先阅读，后续会按一课一版扩写并重新审校。"}</p>
       </div>
 
       ${readingGuideHTML(lesson)}
